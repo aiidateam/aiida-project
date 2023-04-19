@@ -9,7 +9,7 @@ jobs:
 
     validate-release-tag:
 
-        if: github.repository == 'aiidateam/aiida-quantumespresso'
+        if: github.repository == 'aiidateam/aiida-project'
         runs-on: ubuntu-latest
 
         steps:
@@ -27,7 +27,7 @@ jobs:
     publish:
 
         name: Publish to PyPI
-        needs: [pre-commit, tests]
+        needs: [validate-release-tag]
         runs-on: ubuntu-latest
 
         steps:
