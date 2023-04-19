@@ -34,3 +34,11 @@ Source = "https://github.com/aiidateam/aiida-project"
 
 [project.scripts]
 aiida-project = "aiida_project.commands:main"
+
+[project.optional-dependencies]
+dev = [
+  "pre-commit~=3.2.2",
+]
+
+[tool.ruff]
+line-length = 120

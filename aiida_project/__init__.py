@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ###########################################################################
 # Copyright (c), The AiiDA team. All rights reserved.                     #
 # This file is part of the AiiDA code.                                    #
@@ -9,4 +8,4 @@
 ###########################################################################
 """The `aiida-project` module."""
 
-__version__ = '0.2.0'
+__version__ = "0.2.0"

@@ -1,8 +1,7 @@
 import subprocess
 
 
-class BaseEngine(object):
-
+class BaseEngine:
     def __init__(self, project_path):
         self.project_path = project_path
         self._venv_path = None
@@ -21,8 +20,8 @@ class BaseEngine(object):
 
     def install(self, path):
         install_command = []
-        install_command.append((self.venv_path.join('bin', 'pip').strpath))
-        install_command.extend(['install', '-e', path.strpath])
+        install_command.append(self.venv_path.join("bin", "pip").strpath)
+        install_command.extend(["install", "-e", path.strpath])
         subprocess.check_call(install_command, cwd=self.project_path.strpath)
 
     def add_activate_script(self, path):
@@ -30,4 +29,3 @@ class BaseEngine(object):
 
     def add_deactivate_script(self, path):
         pass
-
