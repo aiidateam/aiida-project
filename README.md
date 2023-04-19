@@ -1,5 +1,4 @@
-AiiDA-Project
-=============
+# AiiDA-Project
 
 This python package provides cli commands to manage separate AiiDA environments (called "projects").
 

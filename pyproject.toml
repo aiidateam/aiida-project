@@ -1,0 +1,36 @@
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "aiida-project"
+dynamic = ["version"]
+description = "An AiiDA environment manager"
+authors = [{name = "The AiiDA team", email = "developers@aiida.net"}]
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Framework :: AiiDA",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering"
+]
+keywords = ["aiida", "workflows"]
+requires-python = ">=3.8"
+dependencies = [
+  "click~=8.1.2",
+  "py~=1.11.0",
+]
+
+[project.urls]
+Source = "https://github.com/aiidateam/aiida-project"
+
+[project.scripts]
+aiida-project = "aiida_project.commands:main"

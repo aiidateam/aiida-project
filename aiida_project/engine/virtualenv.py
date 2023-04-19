@@ -5,7 +5,6 @@ from aiida_project.engine.base import BaseEngine
 
 class VirtualenvEngine(BaseEngine):
 
-
     def create(self, name, python=None):
         self._venv_name = 'venv-{}'.format(name)
         venv_command = ['virtualenv', self.venv_name]
