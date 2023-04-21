@@ -23,9 +23,7 @@ def get_version_from_module(content: str) -> str:
             if isinstance(target, ast.Name) and target.id == "__version__"
         )
     except StopIteration as exception:
-        raise OSError(
-            "Unable to find the `__version__` attribute in the module."
-        ) from exception
+        raise OSError("Unable to find the `__version__` attribute in the module.") from exception
 
 
 if __name__ == "__main__":
@@ -39,5 +37,7 @@ if __name__ == "__main__":
     package_version = get_version_from_module(
         Path("aiida_project/__init__.py").read_text(encoding="utf-8")
     )
-    error_message = f"The tag version `{tag_version}` is different from the package version `{package_version}`"
+    error_message = (
+        f"The tag version `{tag_version}` is different from the package version `{package_version}`"
+    )
     assert tag_version == package_version, error_message

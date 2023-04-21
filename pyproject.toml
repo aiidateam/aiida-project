@@ -40,5 +40,16 @@ dev = [
   "pre-commit~=3.2.2",
 ]
 
+[tool.black]
+line-length = 100
+
 [tool.ruff]
-line-length = 120
+line-length = 100
+
+[[tool.mypy.overrides]]
+module = [
+  "dotenv",
+  "pydantic",
+  "yaml",
+]
+ignore_missing_imports = true
