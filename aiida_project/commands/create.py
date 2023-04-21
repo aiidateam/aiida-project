@@ -1,22 +1,17 @@
 import subprocess
+from pathlib import Path
 
 import click
-import py
 
-from aiida_project.commands.main import main
-from aiida_project.engine import get_engine
+from ..commands.main import main
+from ..project import get_project
 
-EMPTY_CONFIG = """{
-    "profiles": {}
-}"""
-
-ACTIVATE_AIIDA_SH = """cd {path}
+ACTIVATE_AIIDA_SH = """
 export AIIDA_PATH={path}
 
 if test -x "$(command -v verdi)"
 then
     eval "$(_VERDI_COMPLETE=source-bash verdi)"
-    verdi profile list &> /dev/null && verdi daemon start
 fi
 """
 
@@ -31,7 +26,7 @@ def clone_pypackage(project_path, repo, branch=None):
     subprocess.call(clone_command, cwd=project_path.strpath)
 
 
-@main.command()
+@main.command(context_settings={"show_default": True})
 @click.argument("name")
 @click.option(
     "--engine",
@@ -41,45 +36,44 @@ def clone_pypackage(project_path, repo, branch=None):
 )
 @click.option(
     "--core-version",
-    default=None,
     help="If specified, immediately installs the corresponding version of `aiida-core`.",
 )
 @click.option(
-    "--plugin",
-    "plugins",
+    "--plugins",
     multiple=True,
     help="plugin specifier <github_user>/<repo>:<branch>",
 )
 @click.option("--python", type=click.Path(file_okay=True, exists=True, dir_okay=False))
 def create(name, engine, core_version, plugins, python):
     """Create a new AiiDA project named NAME."""
-    current_dir = py.path.local(".")
-    project_path = current_dir.join(name)
+    from ..config import ProjectConfig, ProjectDict
 
-    project_path.ensure_dir()
-    config_path = project_path.join(".aiida")
-    config_path.ensure_dir()
-    config_file = config_path.join("config.json")
-    config_file.write(EMPTY_CONFIG)
+    config = ProjectConfig()
 
-    activate_script = project_path.join("activate_aiida.sh")
-    activate_script.write(ACTIVATE_AIIDA_SH.format(path=project_path.strpath))
+    venv_path = config.aiida_venv_dir / Path(name)
+    project_path = config.aiida_project_dir / Path(name)
 
-    deactivate_script = project_path.join("deactivate_aiida.sh")
-    deactivate_script.write(DEACTIVATE_AIIDA_SH)
+    project = get_project(engine=engine, name=name, project_path=project_path, venv_path=venv_path)
 
-    venv = get_engine(engine, project_path)
-    venv.create(f"aiida-{name}", python=python)
+    click.echo("✨ Creating the project environment and directory.")
+    project.create(python_path=python)
 
-    clone_pypackage(project_path, "aiidateam/aiida_core", branch=core_version)
-    venv.install(project_path.join("aiida_core"))
+    click.echo("🔧 Adding the AiiDA environment variables to the activate script.")
+    project.append_activate_text(ACTIVATE_AIIDA_SH.format(path=project_path))
+    project.append_deactivate_text(DEACTIVATE_AIIDA_SH)
+
+    project_dict = ProjectDict()
+    project_dict.add_project(project)
+    click.echo("✅ Success! Project created.")
+
+    # clone_pypackage(project_path, "aiidateam/aiida_core", branch=core_version)
+    if core_version is not None:
+        click.echo(f"💾 Installing AiiDA core module v{core_version}.")
+        project.install(f"aiida-core=={core_version}")
+    else:
+        click.echo("💾 Installing the latest release of the AiiDA core module.")
+        project.install("aiida-core")
 
     for plugin in plugins:
-        repo_branch = plugin.split(":")
-        repo = repo_branch[0]
-        core_version = repo_branch[1] if len(repo_branch) > 1 else None
-        clone_pypackage(project_path, repo, branch=core_version)
-        venv.install(project_path.join(repo.split("/")[1]))
-
-    venv.add_activate_script(activate_script)
-    venv.add_deactivate_script(deactivate_script)
+        click.echo(f"💾 Installing {plugin}")
+        project.install(plugin)
