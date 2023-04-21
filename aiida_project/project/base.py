@@ -1,14 +1,27 @@
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Dict, List, Union
 
 from pydantic import BaseModel
+
+
+def recursive_mkdir(project_path: Path, structure: Union[dict, list, Path]) -> None:
+    """Recursively make the provided directory structure."""
+    if isinstance(structure, dict):
+        for key, value in structure.items():
+            Path(project_path, key).mkdir(exist_ok=True, parents=True)
+            recursive_mkdir(Path(project_path, key), value)
+    elif isinstance(structure, list):
+        for value in structure:
+            Path(project_path, value).mkdir(exist_ok=True, parents=True)
 
 
 class BaseProject(BaseModel, ABC):
     name: str
     project_path: Path
     venv_path: Path
+    dir_structure: Union[Dict[str, Union[dict, list, Path]], List[Path], Path]
 
     _engine = ""
 
@@ -20,6 +33,7 @@ class BaseProject(BaseModel, ABC):
     def create(self, python_path=None):
         """Create the project."""
         Path(self.project_path, ".aiida").mkdir(parents=True, exist_ok=True)
+        recursive_mkdir(self.project_path, self.dir_structure)
 
     @abstractmethod
     def destroy(self):

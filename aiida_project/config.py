@@ -8,13 +8,23 @@ from pydantic import BaseSettings
 from .project import EngineType
 from .project.base import BaseProject
 
+DEFAULT_PROJECT_STRUCTURE = {
+    "setup": [
+        "profile",
+        "computer",
+        "code",
+    ],
+    "code": [],
+}
+
 
 class ProjectConfig(BaseSettings):
     """Configuration class for configuring `aiida-project`."""
 
     aiida_venv_dir: Path = Path(Path.home(), ".aiida_venvs")
     aiida_project_dir: Path = Path(Path.home(), "project")
-    default_python_path: Optional[Path] = None
+    aiida_default_python_path: Optional[Path] = None
+    aiida_project_structure: dict = DEFAULT_PROJECT_STRUCTURE
 
     class Config:
         env_file = Path.home() / Path(".aiida_project.env")

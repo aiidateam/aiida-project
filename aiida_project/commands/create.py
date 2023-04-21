@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 
 from ..commands.main import main
-from ..project import get_project
+from ..project import BaseProject, EngineType
 
 ACTIVATE_AIIDA_SH = """
 export AIIDA_PATH={path}
@@ -53,7 +53,16 @@ def create(name, engine, core_version, plugins, python):
     venv_path = config.aiida_venv_dir / Path(name)
     project_path = config.aiida_project_dir / Path(name)
 
-    project = get_project(engine=engine, name=name, project_path=project_path, venv_path=venv_path)
+    project = EngineType[engine].value(
+        engine=engine,
+        name=name,
+        project_path=project_path,
+        venv_path=venv_path,
+        dir_structure=config.aiida_project_structure,
+    )
+    assert isinstance(
+        project, BaseProject
+    )  # Necessary to have autocomplete - type hinting doesn't work Enum values?
 
     click.echo("✨ Creating the project environment and directory.")
     project.create(python_path=python)
