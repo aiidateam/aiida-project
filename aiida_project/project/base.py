@@ -1,3 +1,4 @@
+import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -19,6 +20,11 @@ class BaseProject(BaseModel, ABC):
     def create(self, python_path=None):
         """Create the project."""
         Path(self.project_path, ".aiida").mkdir(parents=True, exist_ok=True)
+
+    @abstractmethod
+    def destroy(self):
+        """Destroy the project."""
+        shutil.rmtree(self.project_path, ignore_errors=True)
 
     @abstractmethod
     def append_activate_text(self, text: str) -> None:

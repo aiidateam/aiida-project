@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -20,6 +21,11 @@ class VirtualenvProject(BaseProject):
             parents=True,
         )
         subprocess.run(venv_command, cwd=self.venv_path, capture_output=True)
+
+    def destroy(self):
+        """Destroy the project."""
+        super().destroy()
+        shutil.rmtree(self.venv_path, ignore_errors=True)
 
     def append_activate_text(self, text):
         with Path(self.venv_path, "bin", "activate").open("a") as handle:
