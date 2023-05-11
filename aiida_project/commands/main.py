@@ -56,6 +56,14 @@ def create(
     venv_path = config.aiida_venv_dir / Path(name)
     project_path = config.aiida_project_dir / Path(name)
 
+    # Temporarily block `conda` engines until we provide support again
+    if engine is EngineType.conda:
+        print(
+            "[bold red]Error:[/bold red] The `conda` engine is currently disabled until we restore "
+            "support."
+        )
+        return
+
     project = load_project_class(engine.value)(
         name=name,
         project_path=project_path,
