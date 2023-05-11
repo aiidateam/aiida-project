@@ -1,3 +1,6 @@
+from datetime import datetime
+import os
+import subprocess
 from pathlib import Path
 from typing import List, Optional
 
@@ -6,6 +9,13 @@ from rich import print
 from typing_extensions import Annotated
 
 from ..project import EngineType, load_project_class
+
+CDA_FUNCTION = """
+cda () {
+  source $aiida_venv_dir/$1/bin/activate
+  cd $aiida_project_dir/$1
+}
+"""
 
 ACTIVATE_AIIDA_SH = """
 export AIIDA_PATH={path}
@@ -19,6 +29,14 @@ fi
 DEACTIVATE_AIIDA_SH = "unset AIIDA_PATH"
 
 
+def clone_pypackage(project_path, repo, branch=None):
+    clone_command = ["git", "clone", "--single-branch"]
+    if branch:
+        clone_command.extend(["-b", branch])
+    clone_command.append(f"https://github.com/{repo}")
+    subprocess.call(clone_command, cwd=project_path.strpath)
+
+
 app = typer.Typer(pretty_exceptions_show_locals=False)
 
 
@@ -27,6 +45,24 @@ def callback():
     """
     Tool for importing CIF files and converting them into a unique set of `StructureData`.
     """
+
+
+@app.command()
+def init():
+    """Initialisation of the `aiida-project` setup."""
+    from ..config import ProjectConfig
+
+    config = ProjectConfig()
+
+    shell = os.environ.get("SHELL")
+    env_file_path = Path.home() / Path(f".{shell.split('/')[-1]}rc")
+
+    with env_file_path.open("a") as handle:
+        handle.write(
+            f"\n# Created by `aiida-project init` on {datetime.now().strftime('%d/%m/%y %H:%M')}\n"
+        )
+        handle.write(f"export $(grep -v '^#' {config.Config.env_file} | xargs)")
+        handle.write(CDA_FUNCTION)
 
 
 @app.command()
