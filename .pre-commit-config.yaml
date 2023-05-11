@@ -45,7 +45,6 @@ repos:
     - id: mypy
       args: [--config-file=pyproject.toml]
       additional_dependencies:
-      - click
       - py
       files: >
         (?x)^(

@@ -25,17 +25,17 @@ classifiers = [
 keywords = ["aiida", "workflows"]
 requires-python = ">=3.8"
 dependencies = [
-  "click~=8.1.2",
   "py~=1.11.0",
   "pydantic~=1.10.7",
   "python-dotenv~=1.0.0",
+  "typer[all]~=0.9.0"
 ]
 
 [project.urls]
 Source = "https://github.com/aiidateam/aiida-project"
 
 [project.scripts]
-aiida-project = "aiida_project.commands:main"
+aiida-project = "aiida_project.commands.main:app"
 
 [project.optional-dependencies]
 dev = [
@@ -53,5 +53,7 @@ module = [
   "dotenv",
   "pydantic",
   "yaml",
+  "typer",
+  "rich"
 ]
 ignore_missing_imports = true

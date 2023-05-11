@@ -5,7 +5,7 @@ from typing import Dict, Optional, Union
 import dotenv
 from pydantic import BaseSettings
 
-from .project import EngineType
+from .project import load_project_class
 from .project.base import BaseProject
 
 DEFAULT_PROJECT_STRUCTURE = {
@@ -32,11 +32,16 @@ class ProjectConfig(BaseSettings):
 
     def __init__(self, **configuration):
         super().__init__(**configuration)
-        if dotenv.get_key(self.Config.env_file, "aiida_venv_dir") is None:
+        env_config = dotenv.dotenv_values(self.Config.env_file)
+        if env_config.get("aiida_venv_dir", None) is None:
             dotenv.set_key(
                 self.Config.env_file,
                 "aiida_venv_dir",
                 environ.get("WORKON_HOME", self.aiida_venv_dir.as_posix()),
+            )
+        if env_config.get("aiida_project_dir", None) is None:
+            dotenv.set_key(
+                self.Config.env_file, "aiida_project_dir", self.aiida_project_dir.as_posix()
             )
 
 
@@ -52,7 +57,7 @@ class ProjectDict:
     def projects(self) -> Dict[str, BaseProject]:
         projects = {}
         for project_file in self._projects_path.glob("**/*.json"):
-            engine = EngineType[str(project_file.parent.name)].value
+            engine = load_project_class(str(project_file.parent.name))
             project = engine.parse_file(project_file)
             projects[project.name] = project
         return projects
