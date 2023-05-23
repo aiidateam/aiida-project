@@ -104,7 +104,7 @@ def create(
             exists=True,
             dir_okay=False,
             file_okay=True,
-            help="Path to the Python interpreter to use for the environmnent.",
+            help="Path to the Python interpreter to use for the environment.",
         ),
     ] = None,
 ):
