@@ -26,3 +26,6 @@ build/
 .coverage
 .tox
 *.log
+.history/*
+.aiida_projects/
+.vscode/

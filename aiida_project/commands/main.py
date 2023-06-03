@@ -7,23 +7,8 @@ import typer
 from rich import print, prompt
 from typing_extensions import Annotated
 
-from ..config import ShellType
+from ..config import ShellGenerator, ShellType
 from ..project import EngineType, load_project_class
-
-CDA_FUNCTION = """
-cda () {
-  source $aiida_venv_dir/$1/bin/activate
-  cd $aiida_project_dir/$1
-}
-"""
-
-ACTIVATE_AIIDA_SH = """
-export AIIDA_PATH={path}
-eval "$(_VERDI_COMPLETE={shell}_source verdi)"
-"""
-
-DEACTIVATE_AIIDA_SH = "unset AIIDA_PATH"
-
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 
@@ -40,7 +25,12 @@ def init(shell: Optional[ShellType] = None):
     """Initialisation of the `aiida-project` setup."""
     from ..config import ProjectConfig
 
-    config = ProjectConfig()
+    # ! When instantiated without arguments, default values aren't picked up for some reason...
+    # config = ProjectConfig()
+    config = ProjectConfig(
+        aiida_venv_dir = Path(Path.home(), ".aiida_venvs"),
+        aiida_project_dir = Path(Path.home(), "aiida_projects")
+    )
 
     shell_str = shell.value if shell else None
 
@@ -52,21 +42,25 @@ def init(shell: Optional[ShellType] = None):
             prompt=prompt_message, choices=[shell_type.value for shell_type in ShellType]
         )
 
-    if shell_str == "fish":
-        print(
-            "[bold red]Error:[/] `fish` is not yet supported. "
-            "If this is Julian: you better get to it 😜"  # Nhehehe
-        )
-        return
+    shellgenerator = ShellGenerator(shell_str=shell_str)
 
-    config.set_key("aiida_project_shell", shell_str)
+    config.write_key("aiida_project_shell", shell_str)
 
-    env_file_path = Path.home() / Path(f".{shell_str}rc")
+    # ? Add this to ShellGenerator?
+    if shell_str == 'fish':
+        env_file_path = Path.home() / Path(
+            os.path.join('.config', 'fish', 'conf.d', 'aiida_project.fish')
+            )
+        if not env_file_path.exists():
+            env_file_path.touch()
+
+    else:
+        env_file_path = Path.home() / Path(f".{shell_str}rc")
 
     if "Created by `aiida-project init`" in env_file_path.read_text():
         print(
             "[bold blue]Report:[/] There is already an `aiida-project` initialization comment in "
-            f"{env_file_path}."
+            f"{env_file_path}" # ? Removed trailing dot
         )
         add_init_lines = prompt.Confirm.ask("Do you want still want to add the init lines?")
     else:
@@ -78,15 +72,25 @@ def init(shell: Optional[ShellType] = None):
                 f"\n# Created by `aiida-project init` on "
                 f"{datetime.now().strftime('%d/%m/%y %H:%M')}\n"
             )
-            handle.write(f"export $(grep -v '^#' {config.Config.env_file} | xargs)")
-            handle.write(CDA_FUNCTION)
+            # ? Pass as function argument, rather than via .format on the returned str?
+            handle.write(
+                shellgenerator.variable_export().format(
+                    env_file_path=config.Config.env_file
+                )
+            )
+            handle.write(shellgenerator.cd_aiida())
 
-    config.set_key(
+    config.write_key(
         "aiida_venv_dir",
         os.environ.get("WORKON_HOME", config.aiida_venv_dir.as_posix()),
     )
-    config.set_key("aiida_project_dir", config.aiida_project_dir.as_posix())
+    config.write_key("aiida_project_dir", config.aiida_project_dir.as_posix())
+    config.write_key(
+        "aiida_venv_dir",
+        os.environ.get("WORKON_HOME", config.aiida_venv_dir.as_posix()),
+    )
     print("✨🚀 AiiDA-project has been initialised! 🚀✨")
+    print("Restart your shell to let the changes take effect.")
 
 
 @app.command()
@@ -114,9 +118,17 @@ def create(
     config = ProjectConfig()
     if config.is_not_initialised():
         return
+    else:
+        config = config.from_env_file()
+    # raise SystemExit("Ciao 👋")
 
     venv_path = config.aiida_venv_dir / Path(name)
     project_path = config.aiida_project_dir / Path(name)
+    shell_str = config.aiida_project_shell
+    # ? shell_str should be set as instance variable and is used for the command
+    # ? selection. However, it's value is also passed to the string format method.
+    # ? Right now, it seems a bit clunky and duplicated...
+    shellgenerator = ShellGenerator(shell_str=shell_str)
 
     # Temporarily block `conda` engines until we provide support again
     if engine is EngineType.conda:
@@ -138,9 +150,12 @@ def create(
 
     typer.echo("🔧 Adding the AiiDA environment variables to the activate script.")
     project.append_activate_text(
-        ACTIVATE_AIIDA_SH.format(path=project_path, shell=config.aiida_project_shell)
+        shellgenerator.activate_aiida().format(
+            env_file_path=project_path,
+            shell_str=shell_str
+        )
     )
-    project.append_deactivate_text(DEACTIVATE_AIIDA_SH)
+    project.append_deactivate_text(shellgenerator.deactivate_aiida())
 
     project_dict = ProjectDict()
     project_dict.add_project(project)
