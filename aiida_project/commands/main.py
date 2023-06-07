@@ -1,4 +1,5 @@
 import os
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
@@ -98,12 +99,9 @@ def create(
         List[str], typer.Option("--plugin", "-p", help="Extra plugins to install.")
     ] = [],
     python: Annotated[
-        Optional[Path],
+        Optional[str],
         typer.Option(
             "--python",
-            exists=True,
-            dir_okay=False,
-            file_okay=True,
             help="Path to the Python interpreter to use for the environment.",
         ),
     ] = None,
@@ -132,9 +130,21 @@ def create(
         venv_path=venv_path,
         dir_structure=config.aiida_project_structure,
     )
+    if python is not None:
+        python_path = Path(python)
+
+        if not python_path.exists():
+            python_which = shutil.which(python)
+            if python_which is None:
+                python_which = shutil.which(f"python{python}")
+            if python_which is None:
+                print("[bold red]Error:[/bold red] Could not resolve path to Python binary.")
+                return
+            else:
+                python_path = Path(python_which)
 
     typer.echo("✨ Creating the project environment and directory.")
-    project.create(python_path=python)
+    project.create(python_path=python_path)
 
     typer.echo("🔧 Adding the AiiDA environment variables to the activate script.")
     project.append_activate_text(
