@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
@@ -87,7 +88,10 @@ def init(shell: Optional[ShellType] = None):
         os.environ.get("WORKON_HOME", config.aiida_venv_dir.as_posix()),
     )
     config.set_key("aiida_project_dir", config.aiida_project_dir.as_posix())
-    print("✨🚀 AiiDA-project has been initialised! 🚀✨")
+    print("\n✨🚀 AiiDA-project has been initialised! 🚀✨\n")
+    print("[bold blue]Info:[/] For the changes to take effect, run the following command:")
+    print(f"\n    source {env_file_path.resolve()}\n")
+    print("or simply open a new terminal.")
 
 
 @app.command()
@@ -130,9 +134,10 @@ def create(
         venv_path=venv_path,
         dir_structure=config.aiida_project_structure,
     )
-    if python is not None:
+    if python is None:
+        python_path = Path(sys.executable)
+    else:
         python_path = Path(python)
-
         if not python_path.exists():
             python_which = shutil.which(python)
             if python_which is None:
@@ -143,7 +148,10 @@ def create(
             else:
                 python_path = Path(python_which)
 
-    typer.echo("✨ Creating the project environment and directory.")
+    print(
+        "✨ Creating the project directory and environment using the Python binary:\n"
+        f"   [purple]{python_path.resolve()}[/]"
+    )
     project.create(python_path=python_path)
 
     typer.echo("🔧 Adding the AiiDA environment variables to the activate script.")
@@ -170,7 +178,7 @@ def create(
             project.clone_repo(plugin, clone_path)
             typer.echo(f"💾 Installing local repo `{clone_path}` as editable install.")
         else:
-            typer.echo(f"💾 Installing `{plugin}` from PyPI.")
+            typer.echo(f"💾 Installing `{plugin}` from the PyPI.")
             project.install(plugin)
 
 

@@ -31,7 +31,7 @@ class BaseProject(BaseModel, ABC):
         return self._engine
 
     @abstractmethod
-    def create(self, python_path=None):
+    def create(self, python_path: Path):
         """Create the project."""
         Path(self.project_path, ".aiida").mkdir(parents=True, exist_ok=True)
         recursive_mkdir(self.project_path, self.dir_structure)

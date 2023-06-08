@@ -1,8 +1,6 @@
 import shutil
 import subprocess
-import sys
 from pathlib import Path
-from typing import Optional
 
 from aiida_project.project.base import BaseProject
 
@@ -12,10 +10,9 @@ class VenvProject(BaseProject):
 
     _engine = "venv"
 
-    def create(self, python_path: Optional[Path] = None) -> None:
-        super().create(python_path=None)
-        python = python_path or Path(sys.executable)
-        venv_command = [f"{python.resolve()}", "-m", "venv", "."]
+    def create(self, python_path: Path) -> None:
+        super().create(python_path)
+        venv_command = [f"{python_path.resolve()}", "-m", "venv", "."]
         self.venv_path.mkdir(
             exist_ok=True,
             parents=True,
