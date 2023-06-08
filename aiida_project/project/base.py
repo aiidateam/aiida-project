@@ -1,4 +1,5 @@
 import shutil
+import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, List, Union
@@ -55,3 +56,8 @@ class BaseProject(BaseModel, ABC):
     @abstractmethod
     def install_local(self, path):
         """Install a package from a local directory."""
+
+    def clone_repo(self, repo, path):
+        """Clone a ``git`` repository from a remote source."""
+        clone_command = ["git", "clone", "--single-branch", f"{repo}", f"{path.resolve()}"]
+        subprocess.run(clone_command, capture_output=True)
