@@ -93,7 +93,7 @@ def init(shell: Optional[ShellType] = None):
 @app.command()
 def create(
     name: str,
-    engine: EngineType = EngineType.virtualenv,
+    engine: EngineType = EngineType.venv,
     core_version: str = "latest",
     plugins: Annotated[
         List[str], typer.Option("--plugin", "-p", help="Extra plugins to install.")

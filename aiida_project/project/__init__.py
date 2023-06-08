@@ -3,20 +3,20 @@ from typing import Type
 
 from .base import BaseProject
 from .conda import CondaProject
-from .virtualenv import VirtualenvProject
+from .venv import VenvProject
 
-__all__ = ["BaseProject", "VirtualenvProject"]
+__all__ = ["BaseProject", "VenvProject"]
 
 
 def load_project_class(engine_type: str) -> Type[BaseProject]:
     """Load the project class corresponding the engine type."""
     engine_project_dict = {
-        "virtualenv": VirtualenvProject,
+        "venv": VenvProject,
         "conda": CondaProject,
     }
     return engine_project_dict[engine_type]
 
 
 class EngineType(str, Enum):
-    virtualenv = "virtualenv"
+    venv = "venv"
     conda = "conda"

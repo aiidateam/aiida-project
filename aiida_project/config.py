@@ -56,7 +56,7 @@ class ProjectDict:
 
     def __init__(self):
         if not self._projects_path.exists():
-            self._projects_path.joinpath("virtualenv").mkdir(parents=True, exist_ok=True)
+            self._projects_path.joinpath("venv").mkdir(parents=True, exist_ok=True)
             self._projects_path.joinpath("conda").mkdir(parents=True, exist_ok=True)
 
     @property

@@ -7,15 +7,15 @@ from typing import Optional
 from aiida_project.project.base import BaseProject
 
 
-class VirtualenvProject(BaseProject):
-    """An AiiDA environment based on `virtualenv`."""
+class VenvProject(BaseProject):
+    """An AiiDA environment based on `venv`."""
 
-    _engine = "virtualenv"
+    _engine = "venv"
 
     def create(self, python_path: Optional[Path] = None) -> None:
         super().create(python_path=None)
         python = python_path or Path(sys.executable)
-        venv_command = ["virtualenv", f"--python={python.resolve()}", "."]
+        venv_command = [f"{python.resolve()}", "-m", "venv", "."]
         self.venv_path.mkdir(
             exist_ok=True,
             parents=True,
