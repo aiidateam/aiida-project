@@ -48,10 +48,12 @@ def init(shell: Optional[ShellType] = None):
 
     if not shell_str:
         shell_str = os.environ.get("SHELL")
+        detected_shell = shell_str.split("/")[-1] if shell_str else None
         prompt_message = "👋 Hello there! Which shell are you using?"
-        prompt_message += f" [blue]({shell_str.split('/')[-1]} detected)" if shell_str else ""
         shell_str = prompt.Prompt.ask(
-            prompt=prompt_message, choices=[shell_type.value for shell_type in ShellType]
+            prompt=prompt_message,
+            choices=[shell_type.value for shell_type in ShellType],
+            default=detected_shell,
         )
 
     if shell_str == "fish":
