@@ -1,3 +1,55 @@
+## v0.5.0
+
+The most important change in this release, and a breaking one, is the switch from using `virtualenv` to `venv`.
+The main motivation here is that `venv` is part of the standard library since Python 3.3, and hence doesn't require an extra dependency that offers little extra benefits.
+This means that when updating to version `0.5.0` from `<=0.4.0`, you will need to move the project directory for `virtualenv` projects to `venv`:
+
+```console
+❯ mv $aiida_project_dir/.aiida_projects/virtualenv $aiida_project_dir/.aiida_projects/venv
+```
+
+New features and improvements include:
+
+* Install plugins directly from GitHub repositories:
+
+    ```console
+    ❯ aiida-project create --plugin git@github.com:bastonero/aiida-vibroscopy.git vibro
+    ```
+
+* The `--python` option now tries to resolve the path to the provided Python version instead of requiring a full path.
+  The full path to the Python binary is now also shown during project creation:
+
+    ```console
+    ❯ aiida-project create --python 3.9 aiida
+    ✨ Creating the project directory and environment using the Python binary:
+    /opt/homebrew/Cellar/python@3.9/3.9.16/Frameworks/Python.framework/Versions/3.9/bin/python3.9
+    ```
+
+### ‼️ Breaking changes
+
+* Switch from `virtualenv` to  `venv` [[bf7b619](https://github.com/aiidateam/aiida-project/commit/bf7b6198edf5a3fe69672019b5d61488e42e4693)]
+
+### ✨ New features
+
+* Allow plugin installs from GitHub repository [[892c685](https://github.com/aiidateam/aiida-project/commit/892c685959d3f0cc72afaccaf7bba6258564cba5)]
+
+### 👌 Improvements
+
+* Improve `init` and `create` messaging [[2b57b99](https://github.com/aiidateam/aiida-project/commit/2b57b9965881c6ea39237aeab5fe6c013effba42)]
+* CLI: improve `create --python` versatility [[d16c4e9](https://github.com/aiidateam/aiida-project/commit/d16c4e9f7e81895a56cb8c97a660977870cf3b47)]
+
+### 🐛 Bug fixes
+
+* CLI: Fix typo in `create --python` option [[f856612](https://github.com/aiidateam/aiida-project/commit/f856612a126939ad73595d2a6e45e9814422e075)]
+
+### 📚 Documentation
+
+* Update `README.md` [[8f3d5ea](https://github.com/aiidateam/aiida-project/commit/8f3d5eac99a99d8aa9faa800bce09ee6d7ad1578)]
+
+### ⬆️ Update dependencies
+
+* Dependencies: update `pydantic` dependency [[2564715](https://github.com/aiidateam/aiida-project/commit/25647151ff1520fa021b7d7a96c5016173862799)]
+
 ## v0.4.0
 
 The entire CLI has been converted into `typer` for clearer and richer output.
