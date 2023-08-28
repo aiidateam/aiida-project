@@ -24,7 +24,10 @@ export AIIDA_PATH={path}
 eval "$(_VERDI_COMPLETE={shell}_source verdi)"
 """
 
-DEACTIVATE_AIIDA_SH = "unset AIIDA_PATH"
+DEACTIVATE_AIIDA_SH = """
+# Added by `aiida-project`
+unset AIIDA_PATH
+"""
 
 
 app = typer.Typer(pretty_exceptions_show_locals=False)

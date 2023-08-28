@@ -38,8 +38,8 @@ class VenvProject(BaseProject):
         with Path(self.venv_path, "bin", "activate").open("w") as handle:
             handle.write(
                 contents.replace(
-                    "unset VIRTUAL_ENV",
-                    f"unset VIRTUAL_ENV\n{text}\n",
+                    "deactivate () {",
+                    "deactivate () {" + f"\n{text}\n",
                 )
             )
 
