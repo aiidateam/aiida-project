@@ -1,3 +1,11 @@
+## v0.5.1
+
+Patch release with a small fix related to a change in the `activate` scripts of `venv` for Python 3.10.
+
+### 🐛 Bug fixes
+
+* 🐛 Fix `append_deactivate_text` for `venv` [[20302b1](https://github.com/aiidateam/aiida-project/commit/20302b1c88aaadcb6352a61635c7887cf68058b2)]
+
 ## v0.5.0
 
 The most important change in this release, and a breaking one, is the switch from using `virtualenv` to `venv`.
