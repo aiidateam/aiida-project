@@ -1,10 +1,12 @@
+# Changelog
+
 ## v0.5.1
 
 Patch release with a small fix related to a change in the `activate` scripts of `venv` for Python 3.10.
 
 ### 🐛 Bug fixes
 
-* 🐛 Fix `append_deactivate_text` for `venv` [[20302b1](https://github.com/aiidateam/aiida-project/commit/20302b1c88aaadcb6352a61635c7887cf68058b2)]
+* Fix `append_deactivate_text` for `venv` [[20302b1](https://github.com/aiidateam/aiida-project/commit/20302b1c88aaadcb6352a61635c7887cf68058b2)]
 
 ## v0.5.0
 
@@ -88,8 +90,6 @@ A new `aiida-project init` command has also been added, which allows the user to
 ### ❓ Other
 
 * Provide error message for disabled `conda` engine [[979cf91](https://github.com/aiidateam/aiida-project/commit/979cf91eda4cb024ede8412c1eef7c9274849735)]
-
-# Changelog
 
 ## 0.3.0
 
