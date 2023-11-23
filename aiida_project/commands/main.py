@@ -12,11 +12,32 @@ from typing_extensions import Annotated
 from ..config import ShellType
 from ..project import EngineType, load_project_class
 
-CDA_FUNCTION = """
+CDA_FUNCTION = r"""
 cda () {
   source $aiida_venv_dir/$1/bin/activate
   cd $aiida_project_dir/$1
 }
+
+_cda_complete() {
+    local cur prev projects
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    # Complete only the first argument
+    if [[ $COMP_CWORD -eq 1 ]]; then
+        # Get the list of available project filenames with ".json" extension
+        projects=(
+            $(find "$aiida_project_dir/.aiida_projects" -type f -name "*.json" -exec basename {} \;)
+            )
+
+        projects=("${projects[@]%.json}")
+
+        COMPREPLY=($(compgen -W "${projects[*]}" -- "$cur"))
+    fi
+}
+
+complete -F _cda_complete cda
 """
 
 ACTIVATE_AIIDA_SH = """
@@ -217,3 +238,26 @@ def destroy(
     project.destroy()
     project_dict.remove_project(name)
     print(f"[bold green]Succes:[/bold green] Project with name {name} has been destroyed.")
+
+
+@app.command()
+def list():
+    """List all existing projects."""
+    from ..config import ProjectConfig, ProjectDict
+
+    if ProjectConfig().is_not_initialised():
+        return
+
+    projects = ProjectDict().projects
+    project_names = sorted(projects.keys())
+
+    project_engine_name = {}
+
+    for project_name in project_names:
+        project_engine_name.setdefault(projects[project_name]._engine, []).append(project_name)
+
+    print("The following projects are available:")
+    for engine, project_names in project_engine_name.items():
+        print(f"\n  [bold blue]{engine}[/]")
+        for project_name in project_names:
+            print(f"    {project_name}")
