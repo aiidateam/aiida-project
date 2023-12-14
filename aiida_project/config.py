@@ -28,8 +28,8 @@ class ShellType(str, Enum):
 class ProjectConfig(BaseSettings):
     """Configuration class for configuring `aiida-project`."""
 
-    aiida_venv_dir: Path = Path(Path.home(), ".aiida_venvs")
-    aiida_project_dir: Path = Path(Path.home(), "project")
+    aiida_venv_dir: Path = Path.home() / Path(".aiida_venvs")
+    aiida_project_dir: Path = Path.home() / Path("aiida_projects") # ? Make hidden?
     aiida_default_python_path: Optional[Path] = None
     aiida_project_structure: dict = DEFAULT_PROJECT_STRUCTURE
     aiida_project_shell: str = "bash"
@@ -44,10 +44,23 @@ class ProjectConfig(BaseSettings):
             print("[bold blue]Info:[/bold blue] Please run `aiida-project init` to get started.")
             return True
 
-    def set_key(self, key, value):
+    @classmethod
+    def from_env_file(cls, env_path: Optional[Path] = None):
+        """Populate config instance from env file."""
+
+        if env_path is None:
+            env_path = Path.home() / Path(".aiida_project.env")
+        # ? Currently works only with default path of Config class...
+        config_dict = {k:v for k,v in dotenv.dotenv_values(env_path).items()}
+        config_instance = cls.parse_obj(config_dict)
+        return config_instance
+
+    # ? Renamed these methods, as they actually write to the env file, and we
+    # ? might implement a method that sets the key of the ProjectConfig class?
+    def write_key(self, key, value):
         dotenv.set_key(self.Config.env_file, key, value)
 
-    def get_key(self, key):
+    def read_key(self, key):
         return dotenv.get_key(key)
 
 
