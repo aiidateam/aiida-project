@@ -59,16 +59,9 @@ def init(shell: Optional[ShellType] = None):
             default=detected_shell,
         )
 
-    if shell_str == "fish":
-        print(
-            "[bold red]Error:[/] `fish` is not yet supported. "
-            "If this is Julian: you better get to it 😜"  # Nhehehe
-        )
-        return
 
-    config.set_key("aiida_project_shell", shell_str)
+    config.write_key("aiida_project_shell", shell_str)
 
-    env_file_path = Path.home() / Path(f".{shell_str}rc")
 
     if "Created by `aiida-project init`" in env_file_path.read_text():
         print(
@@ -85,14 +78,11 @@ def init(shell: Optional[ShellType] = None):
                 f"\n# Created by `aiida-project init` on "
                 f"{datetime.now().strftime('%d/%m/%y %H:%M')}\n"
             )
-            handle.write(f"export $(grep -v '^#' {config.Config.env_file} | xargs)")
-            handle.write(CDA_FUNCTION)
-
-    config.set_key(
+    config.write_key("aiida_project_dir", config.aiida_project_dir.as_posix())
+    config.write_key(
         "aiida_venv_dir",
         os.environ.get("WORKON_HOME", config.aiida_venv_dir.as_posix()),
     )
-    config.set_key("aiida_project_dir", config.aiida_project_dir.as_posix())
     print("\n✨🚀 AiiDA-project has been initialised! 🚀✨\n")
     print("[bold blue]Info:[/] For the changes to take effect, run the following command:")
     print(f"\n    source {env_file_path.resolve()}\n")
@@ -121,6 +111,8 @@ def create(
     config = ProjectConfig()
     if config.is_not_initialised():
         return
+    else:
+        config = config.from_env_file()
 
     venv_path = config.aiida_venv_dir / Path(name)
     project_path = config.aiida_project_dir / Path(name)
