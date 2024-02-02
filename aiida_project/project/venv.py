@@ -3,12 +3,24 @@ import subprocess
 from pathlib import Path
 
 from aiida_project.project.base import BaseProject
+from aiida_project.config import ProjectConfig
 
 
 class VenvProject(BaseProject):
     """An AiiDA environment based on `venv`."""
 
     _engine = "venv"
+
+    shell_activate_mapping = {
+        "bash": "activate",
+        "zsh": "activate",
+        "fish": "activate.fish",
+    }
+    shell_deactivate_mapping = {
+        "bash": "deactivate () {",
+        "zsh": "deactivate () {",
+        "fish": 'function deactivate  -d "Exit virtual environment and return to normal shell environment"',
+    }
 
     def create(self, python_path: Path) -> None:
         super().create(python_path)
@@ -25,21 +37,24 @@ class VenvProject(BaseProject):
         shutil.rmtree(self.venv_path, ignore_errors=True)
 
     def append_activate_text(self, text):
-        with Path(self.venv_path, "bin", "activate").open("a") as handle:
+        activate_file = self.shell_activate_mapping[ProjectConfig().aiida_project_shell]
+        with Path(self.venv_path, "bin", activate_file).open("a") as handle:
             handle.write(text)
 
     def append_deactivate_text(self, text):
-        with Path(self.venv_path, "bin", "activate").open("r") as handle:
+        activate_file = self.shell_activate_mapping[ProjectConfig().aiida_project_shell]
+        with Path(self.venv_path, "bin", activate_file).open("r") as handle:
             contents = handle.read()
 
         # Make sure the content has the right indent - Required to satisfy Python-OCD
         text = "\n".join([" " * 4 + line.lstrip(" ") for line in text.splitlines()])
+        replace_line = self.shell_deactivate_mapping[ProjectConfig().aiida_project_shell]
 
-        with Path(self.venv_path, "bin", "activate").open("w") as handle:
+        with Path(self.venv_path, "bin", activate_file).open("w") as handle:
             handle.write(
                 contents.replace(
-                    "deactivate () {",
-                    "deactivate () {" + f"\n{text}\n",
+                    replace_line,
+                    replace_line + f"\n{text}\n",
                 )
             )
 
