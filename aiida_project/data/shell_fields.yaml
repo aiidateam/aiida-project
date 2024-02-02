@@ -1,0 +1,39 @@
+bash:
+  config_file: .bashrc
+  init_lines: &bash_init_lines |
+    export $(grep -v '^#' {env_file} | xargs)
+    cda () {
+      source "$aiida_venv_dir/$1/bin/activate"
+      cd "$aiida_project_dir/$1"
+    }
+  activate: |
+    export AIIDA_PATH={env_file_path}
+    eval "$(_VERDI_COMPLETE=bash_source verdi)"
+  deactivate: &bash_deactivate |
+    unset AIIDA_PATH
+zsh:
+  config_file: .zshrc
+  init_lines: *bash_init_lines
+  activate: |
+    export AIIDA_PATH={env_file_path}
+    eval "$(_VERDI_COMPLETE=zsh_source verdi)"
+  deactivate: *bash_deactivate
+fish:
+  config_file: .config/fish/conf.d/aiida_project.fish
+  init_lines: |
+    set -gx VIRTUAL_ENV_DISABLE_PROMPT 1
+    for line in (cat {env_file_path})
+        set key (echo $line | cut -d= -f1)
+        set value (echo $line | cut -d= -f2 | sed "s/'//g")
+        set -gx $key $value
+    end
+    function cda
+        source "$aiida_venv_dir/$argv[1]/bin/activate.fish"
+        cd "$aiida_project_dir/$argv[1]"
+    end
+    funcsave -q cda
+  activate: |
+    set -gx AIIDA_PATH {env_file_path}
+    eval (env _VERDI_COMPLETE=fish_source verdi)
+  deactivate: |
+    set -e AIIDA_PATH

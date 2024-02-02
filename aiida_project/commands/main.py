@@ -9,26 +9,8 @@ import typer
 from rich import print, prompt
 from typing_extensions import Annotated
 
-from ..config import ShellType
 from ..project import EngineType, load_project_class
-
-CDA_FUNCTION = """
-cda () {
-  source $aiida_venv_dir/$1/bin/activate
-  cd $aiida_project_dir/$1
-}
-"""
-
-ACTIVATE_AIIDA_SH = """
-export AIIDA_PATH={path}
-eval "$(_VERDI_COMPLETE={shell}_source verdi)"
-"""
-
-DEACTIVATE_AIIDA_SH = """
-# Added by `aiida-project`
-unset AIIDA_PATH
-"""
-
+from ..shell import ShellType, load_shell
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 
@@ -47,11 +29,11 @@ def init(shell: Optional[ShellType] = None):
 
     config = ProjectConfig()
 
-    shell_str = shell.value if shell else None
+    shell_str = shell.value if shell else ""
 
     if not shell_str:
-        shell_str = os.environ.get("SHELL")
-        detected_shell = shell_str.split("/")[-1] if shell_str else None
+        shell_guess = os.environ.get("SHELL", "")
+        detected_shell = shell_guess.split("/")[-1] if shell_guess else None
         prompt_message = "👋 Hello there! Which shell are you using?"
         shell_str = prompt.Prompt.ask(
             prompt=prompt_message,
@@ -59,34 +41,27 @@ def init(shell: Optional[ShellType] = None):
             default=detected_shell,
         )
 
-    if shell_str == "fish":
-        print(
-            "[bold red]Error:[/] `fish` is not yet supported. "
-            "If this is Julian: you better get to it 😜"  # Nhehehe
-        )
-        return
-
     config.set_key("aiida_project_shell", shell_str)
+    shellz = load_shell(shell_str)
 
-    env_file_path = Path.home() / Path(f".{shell_str}rc")
+    shellz.config_file.touch(exist_ok=True)
 
-    if "Created by `aiida-project init`" in env_file_path.read_text():
+    if "Created by `aiida-project init`" in shellz.config_file.read_text():
         print(
             "[bold blue]Report:[/] There is already an `aiida-project` initialization comment in "
-            f"{env_file_path}."
+            f"{shellz.config_file}"
         )
         add_init_lines = prompt.Confirm.ask("Do you want still want to add the init lines?")
     else:
         add_init_lines = True
 
     if add_init_lines:
-        with env_file_path.open("a") as handle:
+        with shellz.config_file.open("a") as handle:
             handle.write(
                 f"\n# Created by `aiida-project init` on "
                 f"{datetime.now().strftime('%d/%m/%y %H:%M')}\n"
             )
-            handle.write(f"export $(grep -v '^#' {config.Config.env_file} | xargs)")
-            handle.write(CDA_FUNCTION)
+            handle.write(shellz.init_lines.format(env_file_path=config.Config.env_file))
 
     config.set_key(
         "aiida_venv_dir",
@@ -95,7 +70,7 @@ def init(shell: Optional[ShellType] = None):
     config.set_key("aiida_project_dir", config.aiida_project_dir.as_posix())
     print("\n✨🚀 AiiDA-project has been initialised! 🚀✨\n")
     print("[bold blue]Info:[/] For the changes to take effect, run the following command:")
-    print(f"\n    source {env_file_path.resolve()}\n")
+    print(f"\n    source {shellz.config_file.resolve()}\n")
     print("or simply open a new terminal.")
 
 
@@ -116,7 +91,8 @@ def create(
     ] = None,
 ):
     """Create a new AiiDA project named NAME."""
-    from ..config import ProjectConfig, ProjectDict
+    from ..config import ProjectConfig
+    from ..project import ProjectDict
 
     config = ProjectConfig()
     if config.is_not_initialised():
@@ -160,10 +136,9 @@ def create(
     project.create(python_path=python_path)
 
     typer.echo("🔧 Adding the AiiDA environment variables to the activate script.")
-    project.append_activate_text(
-        ACTIVATE_AIIDA_SH.format(path=project_path, shell=config.aiida_project_shell)
-    )
-    project.append_deactivate_text(DEACTIVATE_AIIDA_SH)
+    shell = load_shell(config.aiida_project_shell)
+    project.append_activate_text(shell.activate.format(env_file_path=project_path))
+    project.append_deactivate_text(shell.deactivate)
 
     project_dict = ProjectDict()
     project_dict.add_project(project)
@@ -195,7 +170,8 @@ def destroy(
     ] = False,
 ):
     """Fully remove both the virtual environment and project directory."""
-    from ..config import ProjectConfig, ProjectDict
+    from ..config import ProjectConfig
+    from ..project import ProjectDict
 
     if ProjectConfig().is_not_initialised():
         return
