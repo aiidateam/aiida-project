@@ -4,14 +4,11 @@ import shutil
 import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, List, Union
-from ..config import ProjectConfig
-from enum import Enum
 
 from pydantic import BaseModel
 
 
-def recursive_mkdir(project_path: Path, structure: Union[dict, list, Path]) -> None:
+def recursive_mkdir(project_path: Path, structure: dict | list | Path) -> None:
     """Recursively make the provided directory structure."""
     if isinstance(structure, dict):
         for key, value in structure.items():
@@ -22,44 +19,11 @@ def recursive_mkdir(project_path: Path, structure: Union[dict, list, Path]) -> N
             Path(project_path, value).mkdir(exist_ok=True, parents=True)
 
 
-class EngineType(str, Enum):
-    venv = "venv"
-    conda = "conda"
-
-
-class ProjectDict:
-    _projects_path = Path(ProjectConfig().aiida_project_dir, ".aiida_projects")
-
-    def __init__(self):
-        if not self._projects_path.exists():
-            self._projects_path.joinpath("venv").mkdir(parents=True, exist_ok=True)
-            self._projects_path.joinpath("conda").mkdir(parents=True, exist_ok=True)
-
-    @property
-    def projects(self) -> Dict[str, BaseProject]:
-        projects = {}
-        for project_file in self._projects_path.glob("**/*.json"):
-            engine = load_project_class(str(project_file.parent.name))
-            project = engine.parse_file(project_file)
-            projects[project.name] = project
-        return projects
-
-    def add_project(self, project: BaseProject) -> None:
-        """Add a project to the configuration files."""
-        with Path(self._projects_path, project.engine, f"{project.name}.json").open("w") as handle:
-            handle.write(project.json())
-
-    def remove_project(self, project: Union[str, BaseProject]) -> None:
-        """Remove a project from the configuration files."""
-        project = self.projects[project] if isinstance(project, str) else project
-        Path(self._projects_path, project.engine, f"{project.name}.json").unlink()
-
-
 class BaseProject(BaseModel, ABC):
     name: str
     project_path: Path
     venv_path: Path
-    dir_structure: Union[Dict[str, Union[dict, list, Path]], List[Path], Path]
+    dir_structure: dict[str, dict | list | Path] | list[Path] | Path
 
     _engine = ""
 
