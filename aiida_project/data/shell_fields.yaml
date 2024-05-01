@@ -1,11 +1,11 @@
 bash:
   config_file: .bashrc
   init_lines: &bash_init_lines |
-    export $(grep -v '^#' {env_file} | xargs)
-    cda () {
+    export $(grep -v '^#' {env_file_path} | xargs)
+    cda () {{
       source "$aiida_venv_dir/$1/bin/activate"
       cd "$aiida_project_dir/$1"
-    }
+    }}
   activate: |
     export AIIDA_PATH={env_file_path}
     eval "$(_VERDI_COMPLETE=bash_source verdi)"
