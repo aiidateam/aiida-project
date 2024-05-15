@@ -61,7 +61,7 @@ def init(shell: Optional[ShellType] = None):
                 f"\n# Created by `aiida-project init` on "
                 f"{datetime.now().strftime('%d/%m/%y %H:%M')}\n"
             )
-            handle.write(shellz.init_lines.format(env_file_path=config.Config.env_file))
+            handle.write(shellz.init_lines.format(env_file_path=config.model_config["env_file"]))
 
     config.set_key(
         "aiida_venv_dir",
