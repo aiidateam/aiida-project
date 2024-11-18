@@ -67,3 +67,34 @@ class VenvProject(BaseProject):
         install_command.append(Path(self.venv_path, "bin", "pip")).as_posix()
         install_command.extend(["install", "-e", path.as_posix()])
         subprocess.run(install_command, cwd=self.project_path)
+
+
+class UvVenvProject(VenvProject):
+    """An AiiDA environment based on `venv` and `uv`."""
+
+    _engine = "uv"
+    # TODO: We can install uv as a dependency of aiida-project, but then we somehow need to get the path to it,
+    # In other words we need to introspect ourselves and find our bin directory maybe? Or do "python -m uv",
+    # but this needs to be our python!
+    # uv_path = ...
+
+    def create(self, python_path: Path) -> None:
+        super().create(python_path)
+        self.venv_path.mkdir(
+            exist_ok=True,
+            parents=True,
+        )
+        venv_command = ["uv", "venv", "-p", f"{python_path.resolve()}", str(self.venv_path)]
+        subprocess.run(venv_command, capture_output=True)
+
+    def install(self, package):
+        # TODO: Should ensure "uv" executable exists
+        python_path = Path(self.venv_path, "bin", "python").as_posix()
+        install_command = ["uv", "-p", python_path, "pip", "install", package]
+        subprocess.run(install_command, capture_output=True)
+
+    def install_local(self, path):
+        python_path = Path(self.venv_path, "bin", "python").as_posix()
+        install_command = ["uv", "-p", python_path]
+        install_command.extend(["pip", "install", "-e", path.as_posix()])
+        subprocess.run(install_command, cwd=self.project_path)
