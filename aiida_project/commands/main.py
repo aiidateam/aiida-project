@@ -18,7 +18,7 @@ app = typer.Typer(pretty_exceptions_show_locals=False)
 @app.callback()
 def callback():
     """
-    Tool for importing CIF files and converting them into a unique set of `StructureData`.
+    AiiDA project manager: Isolated Python environments tailored to AiiDA with separated project directories, configs, and AiiDA profiles.
     """
 
 
