@@ -1,9 +1,13 @@
 import shutil
+import sys
 import subprocess
 from pathlib import Path
 
 from aiida_project.config import ProjectConfig
 from aiida_project.project.base import BaseProject
+
+# uv should be installed in the same place as aiida-project itself
+UV = Path(sys.executable).parent / "uv"
 
 
 class VenvProject(BaseProject):
@@ -66,4 +70,31 @@ class VenvProject(BaseProject):
         install_command = []
         install_command.append(Path(self.venv_path, "bin", "pip")).as_posix()
         install_command.extend(["install", "-e", path.as_posix()])
+        subprocess.run(install_command, cwd=self.project_path)
+
+
+class UvVenvProject(VenvProject):
+    """An AiiDA environment based on `venv` and `uv`."""
+
+    _engine = "uv"
+    uv_path = UV.as_posix()
+
+    def create(self, python_path: Path) -> None:
+        super().create(python_path)
+        self.venv_path.mkdir(
+            exist_ok=True,
+            parents=True,
+        )
+        venv_command = [self.uv_path, "venv", "-p", f"{python_path.resolve()}", str(self.venv_path)]
+        subprocess.run(venv_command, capture_output=True)
+
+    def install(self, package):
+        python_path = Path(self.venv_path, "bin", "python").as_posix()
+        install_command = [self.uv_path, "-p", python_path, "pip", "install", package]
+        subprocess.run(install_command, capture_output=True)
+
+    def install_local(self, path):
+        python_path = Path(self.venv_path, "bin", "python").as_posix()
+        install_command = [self.uv_path, "-p", python_path]
+        install_command.extend(["pip", "install", "-e", path.as_posix()])
         subprocess.run(install_command, cwd=self.project_path)

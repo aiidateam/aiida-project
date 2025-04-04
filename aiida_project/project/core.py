@@ -5,13 +5,14 @@ from typing import Dict, Type, Union
 from ..config import ProjectConfig
 from .base import BaseProject
 from .conda import CondaProject
-from .venv import VenvProject
+from .venv import VenvProject, UvVenvProject
 
 
 def load_project_class(engine_type: str) -> Type[BaseProject]:
     """Load the project class corresponding the engine type."""
     engine_project_dict = {
         "venv": VenvProject,
+        "uv": UvVenvProject,
         "conda": CondaProject,
     }
     return engine_project_dict[engine_type]
@@ -19,6 +20,7 @@ def load_project_class(engine_type: str) -> Type[BaseProject]:
 
 class EngineType(str, Enum):
     venv = "venv"
+    uv = "uv"
     conda = "conda"
 
 
@@ -29,6 +31,9 @@ class ProjectDict:
         if not self._projects_path.exists():
             self._projects_path.joinpath("venv").mkdir(parents=True, exist_ok=True)
             self._projects_path.joinpath("conda").mkdir(parents=True, exist_ok=True)
+        uv_path = self._projects_path / "uv"
+        if not uv_path.exists():
+            uv_path.mkdir(parents=True, exist_ok=True)
 
     @property
     def projects(self) -> Dict[str, BaseProject]:
