@@ -31,6 +31,7 @@ dependencies = [
   "python-dotenv~=1.0",
   "typer[all]~=0.9",
   "pyyaml~=6.0",
+  "uv~=0.5",
 ]
 
 [project.urls]
