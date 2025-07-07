@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.6.0
+
+### ✨ New features
+
+* Add `fish` support [[d6a299c](https://github.com/aiidateam/aiida-project/commit/d6a299c86603d5860b5d2b7bfa205237686f6651)]
+
+### 🐛 Bug fixes
+
+* Fix `init_lines` string of `zsh`/`bash` [[71dbc6b](https://github.com/aiidateam/aiida-project/commit/71dbc6b30a9ba94456dfa332d08efc491a15e6f7)]
+* Refactor `project` subpackage  [[612a917](https://github.com/aiidateam/aiida-project/commit/612a91734ea1dc582b5bb9e9eb254b65f4cee92d)]
+
+### 📚 Documentation
+
+* Tidy up `CHANGELOG.md` [[418ed4b](https://github.com/aiidateam/aiida-project/commit/418ed4b77bb9f1854afeddc218b8240dc325a0b1)]
+
+### ⬆️ Update dependencies
+
+* Upgrade to `pydantic~=2.7`  [[32bebfb](https://github.com/aiidateam/aiida-project/commit/32bebfb9cfbf3d557d2b335a44b6af3bc5eb700e)]
+
 ## v0.5.1
 
 Patch release with a small fix related to a change in the `activate` scripts of `venv` for Python 3.10.
