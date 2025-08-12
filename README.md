@@ -20,7 +20,7 @@ pipx install aiida-project
 done! ✨ 🌟 ✨
 ```
 
-See the [`pipx` installation instructions](https://pypa.github.io/pipx/installation/) if you haven't already installed `pipx`.
+See the [`pipx` installation instructions](https://pipx.pypa.io/stable/installation/) if you haven't already installed `pipx`.
 
 ## Usage
 
