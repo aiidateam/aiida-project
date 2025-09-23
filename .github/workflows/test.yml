@@ -50,4 +50,4 @@ jobs:
           cd "$aiida_project_dir/testproject"
 
     - name: Destroy
-      run: aiida-project destroy testproject
+      run: aiida-project destroy --force testproject
