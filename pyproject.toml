@@ -20,6 +20,8 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering"
 ]
 keywords = ["aiida", "workflows"]
@@ -31,6 +33,7 @@ dependencies = [
   "python-dotenv~=1.0",
   "typer[all]~=0.9",
   "pyyaml~=6.0",
+  'eval-type-backport; python_version<"3.10"',
 ]
 
 [project.urls]
