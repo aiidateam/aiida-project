@@ -11,7 +11,7 @@ env:
 
 jobs:
 
-  pre-commit:
+  test:
 
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -29,5 +29,8 @@ jobs:
     - name: Install aiida-project as an app
       run: uv tool install .
 
-    - name: Create a test project
+    - name: Init
+      run: aiida-project init --shell bash
+
+    - name: Create
       run: aiida-project create testproject
