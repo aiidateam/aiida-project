@@ -35,18 +35,19 @@ jobs:
       run: uv tool install .
 
     - name: Init
-      run: |
-        aiida-project init --shell bash
-        cat ~/.bashrc
-        source ~/.bashrc && cda testproject
+      run: aiida-project init --shell bash
 
     - name: Create
       run: aiida-project create testproject
 
     - name: cda
       run: |
-        cat ~/.bashrc
-        source ~/.bashrc && cda testproject
+          # NOTE: The cda bash function does not seem to work in GitHub runners so we execute it manually
+          #source ~/.bashrc && cda testproject
+          cat ~/.aiida_project.env
+          export $(grep -v '^#' ~/.aiida_project.env | xargs)
+          source "$aiida_venv_dir/testproject/bin/activate"
+          cd "$aiida_project_dir/testproject"
 
     - name: Destroy
       run: aiida-project destroy testproject
