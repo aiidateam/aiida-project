@@ -36,11 +36,19 @@ def init(shell: Optional[ShellType] = None):
         shell_guess = os.environ.get("SHELL", "")
         detected_shell = shell_guess.split("/")[-1] if shell_guess else None
         prompt_message = "👋 Hello there! Which shell are you using?"
-        shell_str = prompt.Prompt.ask(
-            prompt=prompt_message,
-            choices=[shell_type.value for shell_type in ShellType],
-            default=detected_shell,
-        )
+        # NOTE: Passing `None` or '' as default bypasses the validation of valid choices,
+        # hence the ugly if-else.
+        if detected_shell is None:
+            shell_str = prompt.Prompt.ask(
+                prompt=prompt_message,
+                choices=[shell_type.value for shell_type in ShellType],
+            )
+        else:
+            shell_str = prompt.Prompt.ask(
+                prompt=prompt_message,
+                choices=[shell_type.value for shell_type in ShellType],
+                default=detected_shell,
+            )
 
     config.set_key("aiida_project_shell", shell_str)
     shellz = load_shell(shell_str)
