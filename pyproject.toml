@@ -16,16 +16,15 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering"
 ]
 keywords = ["aiida", "workflows"]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
-  "py~=1.11",
   "pydantic~=2.7",
   "pydantic-settings~=2.2",
   "python-dotenv~=1.0",
@@ -41,7 +40,9 @@ aiida-project = "aiida_project.commands.main:app"
 
 [project.optional-dependencies]
 dev = [
-  "pre-commit~=3.2.2",
+  "pre-commit>=3.4",
+  "mypy~=1.18.1",
+  "types-pyyaml~=6.0",
 ]
 
 [tool.black]
@@ -50,13 +51,9 @@ line-length = 100
 [tool.ruff]
 line-length = 100
 
-[[tool.mypy.overrides]]
-module = [
-  "dotenv",
-  "pydantic",
-  "pydantic_settings",
-  "yaml",
-  "typer",
-  "rich"
-]
 ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "aiida-project[dev]",
+]
