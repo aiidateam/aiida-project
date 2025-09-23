@@ -90,7 +90,7 @@ class UvVenvProject(VenvProject):
 
     def install(self, package):
         python_path = Path(self.venv_path, "bin", "python").as_posix()
-        install_command = [self.uv_path, "-p", python_path, "pip", "install", package]
+        install_command = [self.uv_path,  "pip", "install", "-p", python_path, package]
         subprocess.run(install_command, capture_output=True)
 
     def install_local(self, path):
