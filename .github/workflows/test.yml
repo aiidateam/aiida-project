@@ -35,13 +35,18 @@ jobs:
       run: uv tool install .
 
     - name: Init
-      run: aiida-project init --shell bash
+      run: |
+        aiida-project init --shell bash
+        cat ~/.bashrc
+        source ~/.bashrc && cda testproject
 
     - name: Create
       run: aiida-project create testproject
 
     - name: cda
-      run: source ~/.bashrc && cda testproject
+      run: |
+        cat ~/.bashrc
+        source ~/.bashrc && cda testproject
 
     - name: Destroy
       run: aiida-project destroy testproject
