@@ -40,14 +40,14 @@ jobs:
     - name: Create
       run: aiida-project create testproject
 
+      # NOTE: The cda bash function does not seem to work in GitHub runners so we execute it manually
     - name: cda
       run: |
-          # NOTE: The cda bash function does not seem to work in GitHub runners so we execute it manually
-          #source ~/.bashrc && cda testproject
           cat ~/.aiida_project.env
           export $(grep -v '^#' ~/.aiida_project.env | xargs)
           source "$aiida_venv_dir/testproject/bin/activate"
-          cd "$aiida_project_dir/testproject"
+          cd "$aiida_project_dir/testproject" && pwd
+          ls -lrt
 
     - name: Destroy
       run: aiida-project destroy --force testproject
