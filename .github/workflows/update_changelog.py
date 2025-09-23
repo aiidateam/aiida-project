@@ -1,5 +1,6 @@
 #!/bin/bash
 """Script for updating the `CHANGELOG.md` based on the commits since the latest release tag."""
+
 import re
 import subprocess
 from pathlib import Path

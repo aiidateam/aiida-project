@@ -1,4 +1,5 @@
 """Functionality to support various shells with `aiida-project`."""
+
 from __future__ import annotations
 
 from enum import Enum
