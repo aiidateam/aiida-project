@@ -48,9 +48,10 @@ jobs:
       run: |
           cat ~/.aiida_project.env
           export $(grep -v '^#' ~/.aiida_project.env | xargs)
-          source "$aiida_venv_dir/testproject/bin/activate"
-          cd "$aiida_project_dir/testproject" && pwd
+          source "$aiida_venv_dir/testproject2/bin/activate"
+          cd "$aiida_project_dir/testproject2" && pwd
           ls -lrt
+          uv pip list
 
     - name: Destroy
       run: |
