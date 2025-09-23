@@ -23,7 +23,7 @@ classifiers = [
     "Topic :: Scientific/Engineering"
 ]
 keywords = ["aiida", "workflows"]
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 dependencies = [
   "pydantic~=2.7",
   "pydantic-settings~=2.2",
@@ -45,15 +45,33 @@ dev = [
   "types-pyyaml~=6.0",
 ]
 
-[tool.black]
-line-length = 100
+[dependency-groups]
+dev = [
+    "aiida-project[dev]",
+]
 
 [tool.ruff]
 line-length = 100
 
-ignore_missing_imports = true
+[tool.ruff.lint]
+ignore = [
+  'PLR0912',  # Too many branches
+  'PLW2901',  # `for` loop variable overwritten by assignment target
+  'PLW1510',  # `subprocess.run` without explicit `check` argument
+  'RUF012',   # Mutable class attributes should be annotated with `typing.ClassVar`
+  'PLC0415',  # `import` should be at the top-level of a file
+]
 
-[dependency-groups]
-dev = [
-    "aiida-project[dev]",
+select = [
+  'E',  # pydocstyle
+  'W',  # pydocstyle
+  'F',  # pyflakes
+  'I',  # isort
+  'N',  # pep8-naming
+  'UP',   # pyupgrade
+  'PLC',  # pylint-convention
+  'PLE',  # pylint-error
+  'PLR',  # pylint-refactor
+  'PLW',  # pylint-warning
+  'RUF',  # ruff
 ]
