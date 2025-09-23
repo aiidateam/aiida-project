@@ -1,19 +1,18 @@
 import shutil
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 from aiida_project.config import ProjectConfig
 from aiida_project.project.base import BaseProject
-
-# uv should be installed in the same place as aiida-project itself
-UV = Path(sys.executable).parent / "uv"
 
 
 class VenvProject(BaseProject):
     """An AiiDA environment based on `venv`."""
 
     _engine = "venv"
+    # uv should be installed in the same place as aiida-project itself
+    _uv_path = (Path(sys.executable).parent / "uv").as_posix()
 
     shell_activate_mapping: dict = {
         "bash": "activate",
@@ -28,12 +27,19 @@ class VenvProject(BaseProject):
 
     def create(self, python_path: Path) -> None:
         super().create(python_path)
-        venv_command = [f"{python_path.resolve()}", "-m", "venv", "."]
         self.venv_path.mkdir(
             exist_ok=True,
             parents=True,
         )
-        subprocess.run(venv_command, cwd=self.venv_path, capture_output=True)
+        # TODO: uv by default clears the existing folder. Is that okay? Should we guard against it?
+        venv_command = [
+            self._uv_path,
+            "venv",
+            "-p",
+            f"{python_path.resolve()}",
+            str(self.venv_path),
+        ]
+        subprocess.run(venv_command, capture_output=True)
 
     def destroy(self):
         """Destroy the project."""
@@ -63,38 +69,19 @@ class VenvProject(BaseProject):
             )
 
     def install(self, package):
-        install_command = [Path(self.venv_path, "bin", "pip").as_posix(), "install", package]
-        subprocess.run(install_command, capture_output=True)
-
-    def install_local(self, path):
-        install_command = []
-        install_command.append(Path(self.venv_path, "bin", "pip")).as_posix()
-        install_command.extend(["install", "-e", path.as_posix()])
-        subprocess.run(install_command, cwd=self.project_path)
-
-
-class UvVenvProject(VenvProject):
-    """An AiiDA environment based on `venv` and `uv`."""
-
-    _engine = "uv"
-    uv_path = UV.as_posix()
-
-    def create(self, python_path: Path) -> None:
-        super().create(python_path)
-        self.venv_path.mkdir(
-            exist_ok=True,
-            parents=True,
-        )
-        venv_command = [self.uv_path, "venv", "-p", f"{python_path.resolve()}", str(self.venv_path)]
-        subprocess.run(venv_command, capture_output=True)
-
-    def install(self, package):
         python_path = Path(self.venv_path, "bin", "python").as_posix()
-        install_command = [self.uv_path,  "pip", "install", "-p", python_path, package]
+        install_command = [self._uv_path, "pip", "install", "-p", python_path, package]
         subprocess.run(install_command, capture_output=True)
 
     def install_local(self, path):
         python_path = Path(self.venv_path, "bin", "python").as_posix()
-        install_command = [self.uv_path, "-p", python_path]
-        install_command.extend(["pip", "install", "-e", path.as_posix()])
+        install_command = [
+            self._uv_path,
+            "pip",
+            "install",
+            "-p",
+            python_path,
+            "-e",
+            path.as_posix(),
+        ]
         subprocess.run(install_command, cwd=self.project_path)

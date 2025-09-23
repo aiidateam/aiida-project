@@ -34,8 +34,8 @@ dependencies = [
   "typer[all]~=0.9",
   "pyyaml~=6.0",
   'eval-type-backport; python_version<"3.10"',
-  'importlib_resources; python_version<"3.9"'
-  "uv~=0.5",
+  'importlib_resources; python_version<"3.9"',
+  "uv~=0.8.20",
 ]
 
 [project.urls]
