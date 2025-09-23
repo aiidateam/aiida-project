@@ -33,4 +33,7 @@ jobs:
       run: aiida-project init --shell bash
 
     - name: Create
-      run: aiida-project create testproject
+      run: aiida-project create testproject && cda testproject
+
+    - name: Destroy
+      run: aiida-project destroy testproject
