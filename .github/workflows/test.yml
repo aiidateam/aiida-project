@@ -40,5 +40,8 @@ jobs:
     - name: Create
       run: aiida-project create testproject && cda testproject
 
+    - name: cda
+      run: source ~/.bashrc && cda testproject
+
     - name: Destroy
       run: aiida-project destroy testproject
