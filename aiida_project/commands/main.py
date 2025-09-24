@@ -96,18 +96,17 @@ def create(
 
     config = ProjectConfig()
     if config.is_not_initialised():
-        return
+        sys.exit(1)
 
     venv_path = config.aiida_venv_dir / Path(name)
     project_path = config.aiida_project_dir / Path(name)
 
     # Temporarily block `conda` engines until we provide support again
     if engine is EngineType.conda:
-        print(
+        exit(
             "[bold red]Error:[/bold red] The `conda` engine is currently disabled until we restore "
             "support."
         )
-        return
 
     project = load_project_class(engine.value)(
         name=name,
@@ -124,8 +123,7 @@ def create(
             if python_which is None:
                 python_which = shutil.which(f"python{python}")
             if python_which is None:
-                print("[bold red]Error:[/bold red] Could not resolve path to Python binary.")
-                return
+                exit("[bold red]Error:[/bold red] Could not resolve path to Python binary.")
             else:
                 python_path = Path(python_which)
 
@@ -174,15 +172,14 @@ def destroy(
     from ..project import ProjectDict
 
     if ProjectConfig().is_not_initialised():
-        return
+        sys.exit(1)
 
     project_dict = ProjectDict()
 
     try:
         project = project_dict.projects[name]
     except KeyError:
-        print(f"[bold red]Error:[/bold red] No project with name {name} found!")
-        return
+        exit(f"[bold red]Error:[/bold red] No project with name {name} found!")
 
     if not force:
         typer.confirm(

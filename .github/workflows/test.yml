@@ -1,0 +1,61 @@
+name: test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  FORCE_COLOR: 1
+
+jobs:
+
+  test:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: 0.8.21
+        python-version: ${{ matrix.python-version }}
+        activate-environment: true
+
+    - name: Install aiida-project as an app
+      run: uv tool install .
+
+    - name: Init
+      run: aiida-project init --shell bash
+
+    - name: Create
+      run: aiida-project create testproject
+
+    - name: Create with additional plugins
+      run: 'aiida-project create testproject2 -p aiida-cp2k -p https://github.com/aiidateam/aiida-quantumespresso'
+
+      # NOTE: The cda bash function does not seem to work in GitHub runners so we execute it manually
+    - name: cda
+      run: |
+          cat ~/.aiida_project.env
+          export $(grep -v '^#' ~/.aiida_project.env | xargs)
+          source "$aiida_venv_dir/testproject2/bin/activate"
+          cd "$aiida_project_dir/testproject2" && pwd
+          ls -lrt
+          uv pip list
+
+    - name: Destroy
+      run: |
+        aiida-project destroy --force testproject
+        export $(grep -v '^#' ~/.aiida_project.env | xargs)
+        if [[ -d "$aiida_project_dir/testproject" ]]; then echo "Project destruction incomplete!"; exit 1; fi
+        if [[ -d "$aiida_venv_dir/testproject" ]]; then echo "Project venv not destroyed!"; exit 1; fi

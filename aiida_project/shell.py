@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from importlib import resources
 from pathlib import Path
 
 import yaml
@@ -36,6 +35,11 @@ def load_shell(shell_str: str) -> Shell:
     """Load the project class corresponding the engine type."""
     from . import data
 
-    with (resources.files(data) / "shell_fields.yaml").open("r") as handle:
+    try:
+        from importlib.resources import files
+    except ImportError:
+        from importlib_resources import files
+
+    with (files(data) / "shell_fields.yaml").open("r") as handle:
         specs = yaml.safe_load(handle)
     return Shell(**specs[shell_str])
