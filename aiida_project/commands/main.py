@@ -85,7 +85,7 @@ def init(shell: ShellType | None = None):
 
 
 @app.command()
-def create(
+def create(  # noqa: PLR0912
     name: str,
     engine: EngineType = EngineType.venv,
     core_version: str = "latest",

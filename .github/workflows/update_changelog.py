@@ -71,10 +71,10 @@ def update_changelog():
 
         if pr_match is not None:
             pr_number = pr_match.groupdict()["pr_number"]
-            commit = commit.replace(rf"(#{pr_number})", "")
+            commit = commit.replace(rf"(#{pr_number})", "")  # noqa: PLW2901
 
         # Add the commit hash (short) to link to the changelog
-        commit = commit.strip("'")
+        commit = commit.strip("'")  # noqa: PLW2901
         hash_short, hash_long, message = commit.split("|", maxsplit=2)
         message += (
             f" [[{hash_short}](https://github.com/aiidateam/aiida-project/commit/{hash_long})]"

@@ -59,9 +59,8 @@ plugins = ['pydantic.mypy']
 line-length = 100
 
 [tool.ruff.lint]
+# TODO: PLW1510 should be enabled and fixed!
 ignore = [
-  #  'PLR0912',  # Too many branches
-  'PLW2901',  # `for` loop variable overwritten by assignment target
   'PLW1510',  # `subprocess.run` without explicit `check` argument
   'PLC0415',  # `import` should be at the top-level of a file
 ]
