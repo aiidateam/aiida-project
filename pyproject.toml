@@ -43,7 +43,7 @@ aiida-project = "aiida_project.commands.main:app"
 
 [project.optional-dependencies]
 dev = [
-  "pre-commit~=3.2.2",
+  "pre-commit>=3.4",
 ]
 
 [tool.black]
