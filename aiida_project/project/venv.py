@@ -1,6 +1,7 @@
 import shutil
 import subprocess
 from pathlib import Path
+from typing import ClassVar
 
 from aiida_project.config import ProjectConfig
 from aiida_project.project.base import BaseProject
@@ -11,12 +12,12 @@ class VenvProject(BaseProject):
 
     _engine = "venv"
 
-    shell_activate_mapping: dict = {
+    shell_activate_mapping: ClassVar[dict[str, str]] = {
         "bash": "activate",
         "zsh": "activate",
         "fish": "activate.fish",
     }
-    shell_deactivate_mapping: dict = {
+    shell_deactivate_mapping: ClassVar[dict[str, str]] = {
         "bash": "deactivate () {",
         "zsh": "deactivate () {",
         "fish": 'function deactivate -d "Exit virtual environment"',
