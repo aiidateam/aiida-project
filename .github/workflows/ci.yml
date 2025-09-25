@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  FORCE_COLOR: 1
+
+jobs:
+
+  create_and_destroy:
+    name: "Create and Destroy"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: 0.8.21
+        python-version: ${{ matrix.python-version }}
+        activate-environment: true
+
+    - name: Install aiida-project as an app
+      run: uv tool install .
+
+    - name: Init
+      run: aiida-project init --shell bash
+
+    - name: Create
+      run: aiida-project create testproject
+
+      # NOTE: The cda bash function does not seem to work in GitHub runners so we execute it manually
+    - name: cda
+      run: |
+          cat ~/.aiida_project.env
+          export $(grep -v '^#' ~/.aiida_project.env | xargs)
+          source "$aiida_venv_dir/testproject/bin/activate"
+          cd "$aiida_project_dir/testproject" && pwd
+          ls -lrt
+
+    - name: Destroy
+      run: aiida-project destroy --force testproject
