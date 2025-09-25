@@ -14,7 +14,7 @@ def load_project_class(engine_type: str) -> Type[BaseProject]:
         "venv": VenvProject,
         "conda": CondaProject,
     }
-    return engine_project_dict[engine_type]
+    return engine_project_dict[engine_type]  # type: ignore[return-value]
 
 
 class EngineType(str, Enum):
