@@ -18,7 +18,8 @@ app = typer.Typer(pretty_exceptions_show_locals=False)
 @app.callback()
 def callback():
     """
-    AiiDA project manager: Isolated Python environments tailored to AiiDA with separated project directories, configs, and AiiDA profiles.
+    AiiDA project manager: Isolated Python environments tailored to AiiDA
+    with separated project directories, configs, and AiiDA profiles.
     """
 
 

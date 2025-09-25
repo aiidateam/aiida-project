@@ -26,3 +26,4 @@ build/
 .coverage
 .tox
 *.log
+uv.lock
