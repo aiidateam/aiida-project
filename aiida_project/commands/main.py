@@ -1,11 +1,9 @@
-from __future__ import annotations
-
 import os
 import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Optional
 
 import typer
 from rich import print, prompt
@@ -25,7 +23,7 @@ def callback():
 
 
 @app.command()
-def init(shell: ShellType | None = None):
+def init(shell: Optional[ShellType] = None):
     """Initialisation of the `aiida-project` setup."""
     from ..config import ProjectConfig
 
@@ -93,7 +91,7 @@ def create(  # noqa: PLR0912
         list[str], typer.Option("--plugin", "-p", help="Extra plugins to install.")
     ] = [],
     python: Annotated[
-        str | None,
+        Optional[str],
         typer.Option(
             "--python",
             help="Path to the Python interpreter to use for the environment.",
