@@ -4,12 +4,11 @@ import shutil
 import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, List, Union
 
 from pydantic import BaseModel
 
 
-def recursive_mkdir(project_path: Path, structure: Union[Dict, List, Path]) -> None:
+def recursive_mkdir(project_path: Path, structure: dict | list | Path) -> None:
     """Recursively make the provided directory structure."""
     if isinstance(structure, dict):
         for key, value in structure.items():
@@ -24,7 +23,7 @@ class BaseProject(BaseModel, ABC):
     name: str
     project_path: Path
     venv_path: Path
-    dir_structure: Union[Dict[str, Union[Dict, List, Path]], Union[List[Path], Path]]
+    dir_structure: dict[str, dict | list | Path] | list[Path] | Path
 
     _engine = ""
 
