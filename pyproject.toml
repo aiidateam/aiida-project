@@ -44,21 +44,15 @@ aiida-project = "aiida_project.commands.main:app"
 [project.optional-dependencies]
 dev = [
   "pre-commit>=3.4",
+  "mypy~=1.18.1",
+  "types-pyyaml~=6.0",
 ]
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
 
 [tool.black]
 line-length = 100
 
 [tool.ruff]
 line-length = 100
-
-[[tool.mypy.overrides]]
-module = [
-  "dotenv",
-  "pydantic",
-  "pydantic_settings",
-  "yaml",
-  "typer",
-  "rich"
-]
-ignore_missing_imports = true
