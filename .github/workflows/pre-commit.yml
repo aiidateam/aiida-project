@@ -1,0 +1,32 @@
+name: pre-commit
+
+on:
+  push:
+  pull_request:
+
+env:
+  FORCE_COLOR: 1
+
+jobs:
+
+  pre-commit:
+
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: 0.8.21
+        python-version: 3.13
+        activate-environment: true
+
+    - name: Install aiida-project
+      # NOTE: pip is (annoyingly) needed by the pre-commit/action
+      run: uv pip install -e .[dev] pip
+
+    - name: Run pre-commit
+      uses: pre-commit/action@v3.0.1
