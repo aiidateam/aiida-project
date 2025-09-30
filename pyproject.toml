@@ -47,6 +47,11 @@ dev = [
   "types-pyyaml~=6.0",
 ]
 
+[dependency-groups]
+dev = [
+    "aiida-project[dev]",
+]
+
 [tool.mypy]
 plugins = ['pydantic.mypy']
 
