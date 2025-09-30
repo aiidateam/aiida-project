@@ -54,6 +54,7 @@ dev = [
 
 [tool.mypy]
 plugins = ['pydantic.mypy']
+strict = true
 
 [tool.ruff]
 line-length = 100

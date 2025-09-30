@@ -15,7 +15,7 @@ def load_project_class(engine_type: str) -> type[BaseProject]:
         "venv": VenvProject,
         "conda": CondaProject,
     }
-    return engine_project_dict[engine_type]  # type: ignore[return-value]
+    return engine_project_dict[engine_type]
 
 
 class EngineType(str, Enum):
@@ -26,7 +26,7 @@ class EngineType(str, Enum):
 class ProjectDict:
     _projects_path = Path(ProjectConfig().aiida_project_dir, ".aiida_projects")
 
-    def __init__(self):
+    def __init__(self) -> None:
         if not self._projects_path.exists():
             self._projects_path.joinpath("venv").mkdir(parents=True, exist_ok=True)
             self._projects_path.joinpath("conda").mkdir(parents=True, exist_ok=True)

@@ -7,7 +7,7 @@ from pathlib import Path
 from pydantic import BaseModel
 
 
-def recursive_mkdir(project_path: Path, structure: dict | list | Path) -> None:
+def recursive_mkdir(project_path: Path, structure: dict | list | Path) -> None:  # type: ignore[type-arg]
     """Recursively make the provided directory structure."""
     if isinstance(structure, dict):
         for key, value in structure.items():
@@ -22,12 +22,12 @@ class BaseProject(BaseModel, ABC):
     name: str
     project_path: Path
     venv_path: Path
-    dir_structure: dict[str, dict | list | Path] | list[Path] | Path
+    dir_structure: dict[str, dict | list | Path] | list[Path] | Path  # type: ignore[type-arg]
 
-    _engine = ""
+    _engine: str = ""
 
     @property
-    def engine(self):
+    def engine(self) -> str:
         return self._engine
 
     @abstractmethod
@@ -37,7 +37,7 @@ class BaseProject(BaseModel, ABC):
         recursive_mkdir(self.project_path, self.dir_structure)
 
     @abstractmethod
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy the project."""
         shutil.rmtree(self.project_path, ignore_errors=True)
 
