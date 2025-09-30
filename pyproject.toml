@@ -26,7 +26,6 @@ classifiers = [
 keywords = ["aiida", "workflows"]
 requires-python = ">=3.9"
 dependencies = [
-  "py~=1.11",
   "pydantic~=2.7",
   "pydantic-settings~=2.2",
   "python-dotenv~=1.0",
