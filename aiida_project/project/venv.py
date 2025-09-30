@@ -64,6 +64,6 @@ class VenvProject(BaseProject):
 
     def install_local(self, path):
         install_command = []
-        install_command.append(Path(self.venv_path, "bin", "pip")).as_posix()
+        install_command.append(Path(self.venv_path, "bin", "pip").as_posix())
         install_command.extend(["install", "-e", path.as_posix()])
         subprocess.run(install_command, cwd=self.project_path)

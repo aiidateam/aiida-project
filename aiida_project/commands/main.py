@@ -166,6 +166,7 @@ def create(
             typer.echo(f"⬇️  Cloning repo `{plugin}` from GitHub to `{clone_path.resolve()}`.")
             project.clone_repo(plugin, clone_path)
             typer.echo(f"💾 Installing local repo `{clone_path}` as editable install.")
+            project.install_local(clone_path)
         else:
             typer.echo(f"💾 Installing `{plugin}` from the PyPI.")
             project.install(plugin)
