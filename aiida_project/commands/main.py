@@ -84,7 +84,7 @@ def init(shell: Optional[ShellType] = None) -> None:
 
 
 @app.command()
-def create(
+def create(  # noqa: PLR0915
     name: str,
     engine: EngineType = EngineType.venv,
     core_version: str = "latest",
@@ -106,6 +106,16 @@ def create(
     config = ProjectConfig()
     if config.is_not_initialised():
         sys.exit(os.EX_CONFIG)
+
+    # Guard against user putting an empty string (allowed by typer!)
+    if not name:
+        print("[bold red]Error:[/bold red] Project name cannot be an empty string.'")
+        sys.exit(os.EX_USAGE)
+
+    project_dict = ProjectDict()
+    if name in project_dict.projects:
+        print(f"[bold red]Error:[/bold red] Project named '{name}' already exists!")
+        sys.exit(os.EX_USAGE)
 
     venv_path = config.aiida_venv_dir / Path(name)
     project_path = config.aiida_project_dir / Path(name)
@@ -129,9 +139,7 @@ def create(
     else:
         python_path = Path(python)
         if not python_path.exists():
-            python_which = shutil.which(python)
-            if python_which is None:
-                python_which = shutil.which(f"python{python}")
+            python_which = shutil.which(python) or shutil.which(f"python{python}")
             if python_which is None:
                 print("[bold red]Error:[/bold red] Could not resolve path to Python binary.")
                 sys.exit(os.EX_USAGE)
@@ -142,14 +150,21 @@ def create(
         "✨ Creating the project directory and environment using the Python binary:\n"
         f"   [purple]{python_path.resolve()}[/]"
     )
-    project.create(python_path=python_path)
+
+    try:
+        project.create(python_path=python_path)
+    except CalledProcessError as e:
+        print("[bold red]Error:[/bold red] Python environment creation failed!")
+        typer.echo(e)
+        typer.echo(e.stdout.decode())
+        typer.echo(e.stderr.decode())
+        sys.exit(1)
 
     typer.echo("🔧 Adding the AiiDA environment variables to the activate script.")
     shell = load_shell(config.aiida_project_shell)
     project.append_activate_text(shell.activate.format(env_file_path=project_path))
     project.append_deactivate_text(shell.deactivate)
 
-    project_dict = ProjectDict()
     project_dict.add_project(project)
     print("✅ [bold green]Success:[/bold green] Project created.")
 
@@ -158,7 +173,7 @@ def create(
         aiida_spec += f"=={core_version}"
 
     packages = [aiida_spec, *plugins]
-    typer.echo(f"💾 Installing packages `{' '.join(packages)}`")
+    typer.echo(f"💾 Installing `{' '.join(packages)}`")
     try:
         project.install(packages)
     except CalledProcessError as e:
@@ -188,15 +203,16 @@ def destroy(
     try:
         project = project_dict.projects[name]
     except KeyError:
-        print(f"[bold red]Error:[/bold red] No project with name {name} found!")
+        print(f"[bold red]Error:[/bold red] No project named '{name}' found!")
         sys.exit(os.EX_USAGE)
 
     if not force:
         typer.confirm(
-            f"❗️ Are you sure you want to delete the entire {name} project? This cannot be undone!",
+            f"❗️ Are you sure you want to delete the entire '{name}' project? "
+            f"This cannot be undone!",
             abort=True,
         )
 
     project.destroy()
     project_dict.remove_project(name)
-    print(f"[bold green]Succes:[/bold green] Project with name {name} has been destroyed.")
+    print(f"[bold green]Success:[/bold green] Project '{name}' has been destroyed.")
