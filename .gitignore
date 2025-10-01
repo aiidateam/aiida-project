@@ -27,3 +27,4 @@ build/
 .tox
 *.log
 uv.lock
+.vscode
