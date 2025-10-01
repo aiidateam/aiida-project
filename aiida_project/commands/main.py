@@ -3,11 +3,10 @@ import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Annotated, Optional
 
 import typer
 from rich import print, prompt
-from typing_extensions import Annotated
 
 from ..project import EngineType, load_project_class
 from ..shell import ShellType, load_shell
@@ -84,12 +83,12 @@ def init(shell: Optional[ShellType] = None):
 
 
 @app.command()
-def create(
+def create(  # noqa: PLR0912
     name: str,
     engine: EngineType = EngineType.venv,
     core_version: str = "latest",
     plugins: Annotated[
-        List[str], typer.Option("--plugin", "-p", help="Extra plugins to install.")
+        list[str], typer.Option("--plugin", "-p", help="Extra plugins to install.")
     ] = [],
     python: Annotated[
         Optional[str],

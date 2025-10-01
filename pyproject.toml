@@ -55,8 +55,28 @@ dev = [
 [tool.mypy]
 plugins = ['pydantic.mypy']
 
-[tool.black]
-line-length = 100
-
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint]
+# TODO: PLW1510 should be enabled and fixed!
+# See `ruff rule PLW1510`
+ignore = [
+  'PLW2901',  # `for` loop variable overwritten by assignment target
+  'PLW1510',  # `subprocess.run` without explicit `check` argument
+  'PLC0415',  # `import` should be at the top-level of a file
+]
+
+select = [
+  'E',  # pydocstyle
+  'W',  # pydocstyle
+  'F',  # pyflakes
+  'I',  # isort
+  'N',  # pep8-naming
+  'UP',   # pyupgrade
+  'PLC',  # pylint-convention
+  'PLE',  # pylint-error
+  'PLR',  # pylint-refactor
+  'PLW',  # pylint-warning
+  'RUF',  # ruff-specific rules
+]
