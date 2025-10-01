@@ -39,24 +39,38 @@ jobs:
       run: aiida-project init --shell bash
 
     - name: Create
-      run: aiida-project create testproject
-
-    - name: Create with additional plugins
-      run: 'aiida-project create testproject2 --core-version=2.7 -p aiida-cp2k -p git+https://github.com/aiidateam/aiida-quantumespresso'
+      run: |
+        aiida-project create testproject
+        if aiida-project create testproject; then echo "ERROR: Attempting to overwrite an existing project should fail!"; fi
+        if aiida-project create ""; then echo "ERROR: Attempting to create a project with empty name should fail!"; fi
 
       # NOTE: The cda bash function does not seem to work in GitHub runners so we execute it manually
     - name: cda
       run: |
-          cat ~/.aiida_project.env
           export $(grep -v '^#' ~/.aiida_project.env | xargs)
           source "$aiida_venv_dir/testproject/bin/activate"
           cd "$aiida_project_dir/testproject" && pwd
-          ls -lrt
-          uv pip list
+          ls -lrt && uv pip list
+          uv pip show aiida-core
+
+    - name: Create with additional plugins
+      run: |
+        aiida-project create testproject2 --core-version=2.7 -p aiida-cp2k -p git+https://github.com/aiidateam/aiida-quantumespresso
+        if aiida-project create invalid -p aiida-invalid; then echo "ERROR: Installing invalid package should fail"; fi
+
+    - name: cda again
+      run: |
+          export $(grep -v '^#' ~/.aiida_project.env | xargs)
+          source "$aiida_venv_dir/testproject2/bin/activate"
+          cd "$aiida_project_dir/testproject2" && pwd
+          ls -lrt && uv pip list
+          uv pip show aiida-core aiida-cpk2 aiida-quantumespresso
 
     - name: Destroy
       run: |
         aiida-project destroy --force testproject
         export $(grep -v '^#' ~/.aiida_project.env | xargs)
-        if [[ -d "$aiida_project_dir/testproject" ]]; then echo "Project destruction incomplete!"; exit 1; fi
-        if [[ -d "$aiida_venv_dir/testproject" ]]; then echo "Project venv not destroyed!"; exit 1; fi
+        if [[ -d "$aiida_project_dir/testproject" ]]; then echo "ERROR: Project destruction incomplete!"; exit 1; fi
+        if [[ -d "$aiida_venv_dir/testproject" ]]; then echo "ERROR: Project venv not destroyed!"; exit 1; fi
+
+        if aiida-project destroy -f testproject; then echo "ERROR: Destroying non-existing project did not fail!"; fi
