@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Optional
 
 import dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -20,7 +21,7 @@ class ProjectConfig(BaseSettings):
 
     aiida_venv_dir: Path = Path(Path.home(), ".aiida_venvs")
     aiida_project_dir: Path = Path(Path.home(), "project")
-    aiida_default_python_path: Optional[Path] = None
+    aiida_default_python_path: Path | None = None
     aiida_project_structure: dict = DEFAULT_PROJECT_STRUCTURE
     aiida_project_shell: str = "bash"
     model_config = SettingsConfigDict(
