@@ -16,7 +16,7 @@ app = typer.Typer(pretty_exceptions_show_locals=False)
 
 
 @app.callback()
-def callback():
+def callback() -> None:
     """
     AiiDA project manager: Isolated Python environments tailored to AiiDA
     with separated project directories, configs, and AiiDA profiles.
@@ -24,7 +24,7 @@ def callback():
 
 
 @app.command()
-def init(shell: Optional[ShellType] = None):
+def init(shell: Optional[ShellType] = None) -> None:
     """Initialisation of the `aiida-project` setup."""
     from ..config import ProjectConfig
 
@@ -98,7 +98,7 @@ def create(
             help="Path to the Python interpreter to use for the environment.",
         ),
     ] = None,
-):
+) -> None:
     """Create a new AiiDA project named NAME."""
     from ..config import ProjectConfig
     from ..project import ProjectDict
@@ -175,7 +175,7 @@ def destroy(
     force: Annotated[
         bool, typer.Option("--force", "-f", help="Do not ask for confirmation.")
     ] = False,
-):
+) -> None:
     """Fully remove both the virtual environment and project directory."""
     from ..config import ProjectConfig
     from ..project import ProjectDict

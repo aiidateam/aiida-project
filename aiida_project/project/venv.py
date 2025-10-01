@@ -32,17 +32,17 @@ class VenvProject(BaseProject):
         )
         subprocess.run(venv_command, cwd=self.venv_path, capture_output=True)
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy the project."""
         super().destroy()
         shutil.rmtree(self.venv_path, ignore_errors=True)
 
-    def append_activate_text(self, text):
+    def append_activate_text(self, text: str) -> None:
         activate_file = self.shell_activate_mapping[ProjectConfig().aiida_project_shell]
         with Path(self.venv_path, "bin", activate_file).open("a") as handle:
             handle.write(text)
 
-    def append_deactivate_text(self, text):
+    def append_deactivate_text(self, text: str) -> None:
         activate_file = self.shell_activate_mapping[ProjectConfig().aiida_project_shell]
         with Path(self.venv_path, "bin", activate_file).open("r") as handle:
             contents = handle.read()
