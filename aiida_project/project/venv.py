@@ -1,10 +1,22 @@
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import ClassVar
 
 from aiida_project.config import ProjectConfig
 from aiida_project.project.base import BaseProject
+
+__all__ = ["VenvProject"]
+
+# uv should be installed in the same place as aiida-project itself
+# NOTE: We convert Path to str here for type-checking purposes. :-/
+UV_EXE = (Path(sys.executable).parent / "uv").as_posix()
+if not Path(UV_EXE).is_file():
+    if (which_uv := shutil.which("uv")) is None:
+        sys.exit("ERROR: Could not find uv executable. Maybe try re-installing aiida-project?")
+    else:
+        UV_EXE = which_uv
 
 
 class VenvProject(BaseProject):
@@ -25,12 +37,21 @@ class VenvProject(BaseProject):
 
     def create(self, python_path: Path) -> None:
         super().create(python_path)
-        venv_command = [f"{python_path.resolve()}", "-m", "venv", "."]
         self.venv_path.mkdir(
             exist_ok=True,
             parents=True,
         )
-        subprocess.run(venv_command, cwd=self.venv_path, capture_output=True)
+        venv_command = [
+            UV_EXE,
+            "venv",
+            "--no-project",
+            "--allow-existing",
+            "--seed",
+            "-p",
+            f"{python_path.resolve()}",
+            str(self.venv_path),
+        ]
+        subprocess.run(venv_command, check=True, capture_output=True)
 
     def destroy(self) -> None:
         """Destroy the project."""
@@ -60,5 +81,6 @@ class VenvProject(BaseProject):
             )
 
     def install(self, packages: list[str]) -> None:
-        install_command = [Path(self.venv_path, "bin", "pip").as_posix(), "install", *packages]
+        python_path = Path(self.venv_path, "bin", "python").as_posix()
+        install_command = [UV_EXE, "pip", "install", "-p", python_path, *packages]
         subprocess.run(install_command, capture_output=True, check=True)

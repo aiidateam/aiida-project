@@ -32,6 +32,7 @@ dependencies = [
   "typer[all]~=0.9",
   "pyyaml~=6.0",
   'eval-type-backport; python_version<"3.10"',
+  "uv~=0.8.20",
 ]
 
 [project.urls]
@@ -60,11 +61,8 @@ strict = true
 line-length = 100
 
 [tool.ruff.lint]
-# TODO: PLW1510 should be enabled and fixed!
-# See `ruff rule PLW1510`
 ignore = [
   'PLW2901',  # `for` loop variable overwritten by assignment target
-  'PLW1510',  # `subprocess.run` without explicit `check` argument
   'PLC0415',  # `import` should be at the top-level of a file
 ]
 
