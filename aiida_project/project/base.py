@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import shutil
-import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -32,7 +31,7 @@ class BaseProject(BaseModel, ABC):
         return self._engine
 
     @abstractmethod
-    def create(self, python_path: Path):
+    def create(self, python_path: Path) -> None:
         """Create the project."""
         Path(self.project_path, ".aiida").mkdir(parents=True, exist_ok=True)
         recursive_mkdir(self.project_path, self.dir_structure)
@@ -51,14 +50,5 @@ class BaseProject(BaseModel, ABC):
         """Append a text to the deactivate script."""
 
     @abstractmethod
-    def install(self, package):
-        """Install a package from PyPI."""
-
-    @abstractmethod
-    def install_local(self, path):
-        """Install a package from a local directory."""
-
-    def clone_repo(self, repo, path):
-        """Clone a ``git`` repository from a remote source."""
-        clone_command = ["git", "clone", "--single-branch", f"{repo}", f"{path.resolve()}"]
-        subprocess.run(clone_command, capture_output=True)
+    def install(self, packages: list[str]) -> None:
+        """Install a list of packages from the PyPI or a GitHub repository."""

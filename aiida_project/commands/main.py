@@ -3,6 +3,7 @@ import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
+from subprocess import CalledProcessError
 from typing import Annotated, Optional
 
 import typer
@@ -83,7 +84,7 @@ def init(shell: Optional[ShellType] = None):
 
 
 @app.command()
-def create(  # noqa: PLR0912
+def create(
     name: str,
     engine: EngineType = EngineType.venv,
     core_version: str = "latest",
@@ -152,22 +153,20 @@ def create(  # noqa: PLR0912
     project_dict.add_project(project)
     print("✅ [bold green]Success:[/bold green] Project created.")
 
+    aiida_spec = "aiida-core"
     if core_version != "latest":
-        typer.echo(f"💾 Installing AiiDA core module v{core_version}.")
-        project.install(f"aiida-core=={core_version}")
-    else:
-        typer.echo("💾 Installing the latest release of the AiiDA core module.")
-        project.install("aiida-core")
+        aiida_spec += f"=={core_version}"
 
-    for plugin in plugins:
-        if "github.com" in plugin:
-            clone_path = project.project_path / Path("git") / Path(plugin.split("/")[-1]).stem
-            typer.echo(f"⬇️  Cloning repo `{plugin}` from GitHub to `{clone_path.resolve()}`.")
-            project.clone_repo(plugin, clone_path)
-            typer.echo(f"💾 Installing local repo `{clone_path}` as editable install.")
-        else:
-            typer.echo(f"💾 Installing `{plugin}` from the PyPI.")
-            project.install(plugin)
+    packages = [aiida_spec, *plugins]
+    typer.echo(f"💾 Installing packages `{' '.join(packages)}`")
+    try:
+        project.install(packages)
+    except CalledProcessError as e:
+        print("[bold red]Error:[/bold red] Package installation failed!")
+        typer.echo(e)
+        typer.echo(e.stdout.decode())
+        typer.echo(e.stderr.decode())
+        sys.exit(1)
 
 
 @app.command()

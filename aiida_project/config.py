@@ -12,7 +12,6 @@ DEFAULT_PROJECT_STRUCTURE = {
         "computer",
         "code",
     ],
-    "git": [],
 }
 
 

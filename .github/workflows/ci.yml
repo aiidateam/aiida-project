@@ -41,6 +41,9 @@ jobs:
     - name: Create
       run: aiida-project create testproject
 
+    - name: Create with additional plugins
+      run: 'aiida-project create testproject2 --core-version=2.7 -p aiida-cp2k -p git+https://github.com/aiidateam/aiida-quantumespresso'
+
       # NOTE: The cda bash function does not seem to work in GitHub runners so we execute it manually
     - name: cda
       run: |
@@ -49,6 +52,11 @@ jobs:
           source "$aiida_venv_dir/testproject/bin/activate"
           cd "$aiida_project_dir/testproject" && pwd
           ls -lrt
+          uv pip list
 
     - name: Destroy
-      run: aiida-project destroy --force testproject
+      run: |
+        aiida-project destroy --force testproject
+        export $(grep -v '^#' ~/.aiida_project.env | xargs)
+        if [[ -d "$aiida_project_dir/testproject" ]]; then echo "Project destruction incomplete!"; exit 1; fi
+        if [[ -d "$aiida_venv_dir/testproject" ]]; then echo "Project venv not destroyed!"; exit 1; fi
