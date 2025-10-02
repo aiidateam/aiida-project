@@ -1,5 +1,44 @@
 # Changelog
 
+## v0.7.0
+
+The most exciting improvement in this release is the switch to using `uv` in the `venv` projects, which makes creating new projects _a lot_ faster (in a jiffy! 🚀).
+We still install `pip` in every project environment, so this change should not affect usage/user experience.
+Since `uv` is used in a lot of our CI's and we only use basic features, we don't expect any issues, but please do report any problems you encounter.
+
+Next to this, `aiida-core` and the selected packages via the `-p` option of the `create` command are installed in one go, improving dependency resolution robustness.
+Moreover, quite a few new checks are added to make sure the user doesn't override existing projects, and any errors encountered during the project creation or package installation steps are now properly reported back to the user.
+
+### 👌 Improvements
+
+* CLI: Correct help callback [[98f672d](https://github.com/aiidateam/aiida-project/commit/98f672dcce66e25aa586eb8a91f73e9834cef77f)]
+* CLI: use `sys.exit` instead of `return` for errors [[96b149c](https://github.com/aiidateam/aiida-project/commit/96b149c1c53b05615f5806695ba54c266e6303e0)]
+* Fix init command with empty shell default [[488869a](https://github.com/aiidateam/aiida-project/commit/488869a78bac2e28d53dc2d7a51cf74dccb51a4e)]
+* `create`: install packages together [[da3b72b](https://github.com/aiidateam/aiida-project/commit/da3b72be6c3a94299c4173c217520d7a3f01d190)]
+* `VenvProject`: switch to `uv` [[fa35979](https://github.com/aiidateam/aiida-project/commit/fa3597967d8541af8d6296600e3892cb67e7b578)]
+* `create`: add additional checks and error handling [[5edce0b](https://github.com/aiidateam/aiida-project/commit/5edce0b577091c9365a9fabaa0246e2844bab652)]
+
+### 📚 Documentation
+
+* `README.md`: Fix link to `pipx` installation [[e246d6f](https://github.com/aiidateam/aiida-project/commit/e246d6ffba31c302a91662e07d5966494971e04b)]
+
+### 🔧 Maintenance
+
+* CI: Add "Create and Destroy" job [[9bf803b](https://github.com/aiidateam/aiida-project/commit/9bf803bf1c081a4d191cfc8854f28bfc1b3854ec)]
+* CI: Add pre-commit job [[aa4a752](https://github.com/aiidateam/aiida-project/commit/aa4a752e59a4569e0f48af3947723ebba9f3b966)]
+* pre-commit: (properly) switch to Ruff [[8ec5948](https://github.com/aiidateam/aiida-project/commit/8ec59486da2ee9d0436f9741e95a205cc0ee126c)]
+* Typing: enable `strict` mypy checking [[d59eed4](https://github.com/aiidateam/aiida-project/commit/d59eed4d88ef57a2fdae826271731eb857b519f1)]
+* `.gitignore`: add `.vscode` [[c732c5d](https://github.com/aiidateam/aiida-project/commit/c732c5df1b9e8402835eab410d7586a1f85f654f)]
+
+### 📦 Update dependencies
+
+* Python support: drop v3.8, fix v3.9 and add v3.12 & v3.13 [[07e7cfc](https://github.com/aiidateam/aiida-project/commit/07e7cfcb45879a20f5d73d1fd76ae596d32ae899)]
+* `dev`: switch `pre-commit` pin to lower bound `>=3.4` [[f1c2ff1](https://github.com/aiidateam/aiida-project/commit/f1c2ff131e03d9dde8768780dc8476511dc27ba7)]
+* Update mypy and fix its configuration [[025c3a8](https://github.com/aiidateam/aiida-project/commit/025c3a8366119ac0427b9f4468ecf7d21647fdbc)]
+* Remove `py` dependency [[f3bbd05](https://github.com/aiidateam/aiida-project/commit/f3bbd054f2ff3ab862f132bb63dfec90911e9c97)]
+* Add `dev` Dependency group [[1856eae](https://github.com/aiidateam/aiida-project/commit/1856eaed051f5a8cc4474d3d18a1d5595f4971c1)]
+* 📦 `typer`: remove `all` extra and bump version [[16687a6](https://github.com/aiidateam/aiida-project/commit/16687a678b4dab1a38099e2662272770bba015aa)]
+
 ## v0.6.0
 
 ### ✨ New features
