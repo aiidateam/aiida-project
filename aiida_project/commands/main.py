@@ -216,3 +216,41 @@ def destroy(
     project.destroy()
     project_dict.remove_project(name)
     print(f"[bold green]Success:[/bold green] Project '{name}' has been destroyed.")
+
+
+@app.command(name="list")
+def list_projects() -> None:
+    """List all existing projects."""
+    from rich.table import Table
+
+    from ..config import ProjectConfig
+    from ..project import ProjectDict
+
+    if ProjectConfig().is_not_initialised():
+        sys.exit(os.EX_CONFIG)
+
+    projects = ProjectDict().projects
+
+    if not projects:
+        print(
+            "[bold blue]Info:[/] No projects found. "
+            "Create one with [bold]aiida-project create <name>[/bold]."
+        )
+        return
+
+    table = Table()
+    table.add_column("Name", style="bold green")
+    table.add_column("Engine", style="blue")
+    table.add_column("Project Path", style="dim")
+    table.add_column("Environment Path", style="dim")
+
+    for name, project in sorted(projects.items()):
+        table.add_row(
+            name,
+            project.engine,
+            str(project.project_path),
+            str(project.venv_path),
+        )
+
+    print()
+    print(table)

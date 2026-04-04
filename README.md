@@ -89,6 +89,22 @@ Next to activating the Python virtual environment, this will also change the dir
 
 **Note:** You may not have the [`tree`](https://en.wikipedia.org/wiki/Tree_(command)) command installed on your system.
 
+### `list`
+
+You can list all existing projects with the `list` command:
+
+```console
+aiida-project list
+```
+```console
+┏━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Name         ┃ Engine ┃ Project Path                        ┃ Environment Path                          ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ firstproject │ venv   │ /home/aiida/project/firstproject     │ /home/aiida/.aiida_venvs/firstproject      │
+│ hp_tests     │ venv   │ /home/aiida/project/hp_tests         │ /home/aiida/.aiida_venvs/hp_tests          │
+└──────────────┴────────┴─────────────────────────────────────┴───────────────────────────────────────────┘
+```
+
 ### `destroy`
 
 Projects can be cleaned up by using `aiida-project destroy`.
