@@ -13,12 +13,6 @@ The package can be installed globally with `pipx`:
 ```console
 pipx install aiida-project
 ```
-```console
-  installed package aiida-project 0.4.0, installed using Python 3.9.16
-  These apps are now globally available
-    - aiida-project
-done! ✨ 🌟 ✨
-```
 
 See the [`pipx` installation instructions](https://pipx.pypa.io/stable/installation/) if you haven't already installed `pipx`.
 
