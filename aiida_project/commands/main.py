@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from rich import print, prompt
@@ -24,7 +24,7 @@ def callback() -> None:
 
 
 @app.command()
-def init(shell: Optional[ShellType] = None) -> None:
+def init(shell: ShellType | None = None) -> None:
     """Initialisation of the `aiida-project` setup."""
     from ..config import ProjectConfig
 
@@ -92,7 +92,7 @@ def create(  # noqa: PLR0915
         list[str], typer.Option("--plugin", "-p", help="Extra plugins to install.")
     ] = [],
     python: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--python",
             help="Path to the Python interpreter to use for the environment.",
