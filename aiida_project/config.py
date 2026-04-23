@@ -5,7 +5,6 @@ from typing import Any
 
 import dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from rich import print
 
 DEFAULT_PROJECT_STRUCTURE = {
     "setup": [
@@ -28,13 +27,8 @@ class ProjectConfig(BaseSettings):
         env_file=Path.home() / Path(".aiida_project.env"), env_file_encoding="utf-8"
     )
 
-    def is_not_initialised(self) -> bool:
-        if dotenv.get_key(self.model_config["env_file"], "aiida_project_shell") is None:  # type: ignore[arg-type]
-            print("[bold red]Error:[/bold red] The AiiDA project config has not been initialised.")
-            print("[bold blue]Info:[/bold blue] Please run `aiida-project init` to get started.")
-            return True
-        else:
-            return False
+    def is_initialised(self) -> bool:
+        return dotenv.get_key(self.model_config["env_file"], "aiida_project_shell") is not None  # type: ignore[arg-type]
 
     def set_key(self, key: str, value: Any) -> None:
         dotenv.set_key(self.model_config["env_file"], key, value)  # type: ignore[arg-type]

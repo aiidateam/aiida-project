@@ -30,13 +30,18 @@ aiida-project init
 
 Info: For the changes to take effect, run the following command:
 
-    source /Users/mbercx/.zshrc
+    source ~/.aiida_project/init.zsh
 
 or simply open a new terminal.
 ```
 
 This will also add the `cda` function to your shell startup file, so you can easily switch projects.
-Note that you'll have to source your e.g. `.zshrc` file for this function to be accessible!
+In order to activate tab-completion, you'll have to run
+
+    aiida-project --install-completion
+
+> [!NOTE]
+> You will have to and restart the terminal after running either of these commands, or source the shell config file.
 
 ### `create`
 
@@ -60,6 +65,8 @@ You can then activate the project using the `cda` command described above:
 ```console
 cda firstproject
 ```
+
+The `cda` command supports tab-completion and lists the available projects.
 
 Next to activating the Python virtual environment, this will also change the directory to the one for the project.
 `aiida-project` automatically sets up a directory structure, which we intend to be made configurable globally:

@@ -1,7 +1,6 @@
 import os
 import shutil
 import sys
-from datetime import datetime
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Annotated
@@ -14,13 +13,33 @@ from ..shell import ShellType, load_shell
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 
+_NOT_INITIALISED_MSG = (
+    "[bold red]Error:[/bold red] The AiiDA project config has not been initialised.\n"
+    "[bold blue]Info:[/bold blue] Please run `aiida-project init` to get started."
+)
+
 
 @app.callback()
-def callback() -> None:
+def callback(ctx: typer.Context) -> None:
     """
     AiiDA project manager: Isolated Python environments tailored to AiiDA
     with separated project directories, configs, and AiiDA profiles.
     """
+    if ctx.invoked_subcommand == "init":
+        return
+
+    from ..config import ProjectConfig
+
+    config = ProjectConfig()
+    if not config.is_initialised():
+        return
+
+    shell = load_shell(config.aiida_project_shell)
+    if shell.is_outdated:
+        print(
+            "⚠️  [bold yellow]Warning:[/] Shell configuration is outdated. "
+            "Run [bold]aiida-project init[/bold] to update."
+        )
 
 
 @app.command()
@@ -53,31 +72,24 @@ def init(shell: ShellType | None = None) -> None:
     config.set_key("aiida_project_shell", shell_str)
     shellz = load_shell(shell_str)
 
-    shellz.config_file.touch(exist_ok=True)
+    is_reinit = shellz.write_config(str(config.model_config["env_file"]))
 
-    if "Created by `aiida-project init`" in shellz.config_file.read_text():
-        print(
-            "[bold blue]Report:[/] There is already an `aiida-project` initialization comment in "
-            f"{shellz.config_file}"
-        )
-        add_init_lines = prompt.Confirm.ask("Do you want still want to add the init lines?")
-    else:
-        add_init_lines = True
+    rc_file = ShellType(shell_str).rc_file
 
-    if add_init_lines:
-        with shellz.config_file.open("a") as handle:
-            handle.write(
-                f"\n# Created by `aiida-project init` on "
-                f"{datetime.now().strftime('%d/%m/%y %H:%M')}\n"
-            )
-            handle.write(shellz.init_lines.format(env_file_path=config.model_config["env_file"]))
+    if rc_file is not None:
+        shellz.ensure_source_line(rc_file)
 
     config.set_key(
         "aiida_venv_dir",
         os.environ.get("WORKON_HOME", config.aiida_venv_dir.as_posix()),
     )
     config.set_key("aiida_project_dir", config.aiida_project_dir.as_posix())
-    print("\n✨🚀 AiiDA-project has been initialised! 🚀✨\n")
+
+    if is_reinit:
+        print("\n🔄 AiiDA-project shell configuration has been updated.\n")
+    else:
+        print("\n✨🚀 AiiDA-project has been initialised! 🚀✨\n")
+
     print("[bold blue]Info:[/] For the changes to take effect, run the following command:")
     print(f"\n    source {shellz.config_file.resolve()}\n")
     print("or simply open a new terminal.")
@@ -104,7 +116,8 @@ def create(  # noqa: PLR0915
     from ..project import ProjectDict
 
     config = ProjectConfig()
-    if config.is_not_initialised():
+    if not config.is_initialised():
+        print(_NOT_INITIALISED_MSG)
         sys.exit(os.EX_CONFIG)
 
     # Guard against user putting an empty string (allowed by typer!)
@@ -195,7 +208,8 @@ def destroy(
     from ..config import ProjectConfig
     from ..project import ProjectDict
 
-    if ProjectConfig().is_not_initialised():
+    if not ProjectConfig().is_initialised():
+        print(_NOT_INITIALISED_MSG)
         sys.exit(os.EX_CONFIG)
 
     project_dict = ProjectDict()
@@ -226,7 +240,7 @@ def list_projects() -> None:
     from ..config import ProjectConfig
     from ..project import ProjectDict
 
-    if ProjectConfig().is_not_initialised():
+    if not ProjectConfig().is_initialised():
         sys.exit(os.EX_CONFIG)
 
     projects = ProjectDict().projects

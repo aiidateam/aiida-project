@@ -1,19 +1,43 @@
+version: 1
 bash:
-  config_file: .bashrc
+  config_file: .aiida_project/init.bash
   init_lines: &bash_init_lines |
     export $(grep -v '^#' {env_file_path} | xargs)
     cda () {{
       source "$aiida_venv_dir/$1/bin/activate"
       cd "$aiida_project_dir/$1"
     }}
+    _cda_complete() {{
+      COMPREPLY=()
+      if [[ $COMP_CWORD -eq 1 ]]; then
+        local projects
+        projects=($(find "$aiida_project_dir/.aiida_projects" -type f -name "*.json" \
+          -exec basename {{}} .json \;))
+        COMPREPLY=($(compgen -W "${{projects[*]}}" -- "${{COMP_WORDS[COMP_CWORD]}}"))
+      fi
+    }}
+    complete -F _cda_complete cda
   activate: |
     export AIIDA_PATH={env_file_path}
     eval "$(_VERDI_COMPLETE=bash_source verdi)"
   deactivate: &bash_deactivate |
     unset AIIDA_PATH
 zsh:
-  config_file: .zshrc
-  init_lines: *bash_init_lines
+  config_file: .aiida_project/init.zsh
+  init_lines: |
+    export $(grep -v '^#' {env_file_path} | xargs)
+    cda () {{
+      source "$aiida_venv_dir/$1/bin/activate"
+      cd "$aiida_project_dir/$1"
+    }}
+    _cda_complete() {{
+      local projects
+      projects=($(find "$aiida_project_dir/.aiida_projects" -type f -name "*.json" \
+        -exec basename {{}} .json \;))
+      compadd -- ${{projects[@]}}
+    }}
+    autoload -Uz compinit && compinit -C
+    compdef _cda_complete cda
   activate: |
     export AIIDA_PATH={env_file_path}
     eval "$(_VERDI_COMPLETE=zsh_source verdi)"
@@ -32,6 +56,12 @@ fish:
         cd "$aiida_project_dir/$argv[1]"
     end
     funcsave -q cda
+    function _cda_complete
+        find $aiida_project_dir/.aiida_projects -type f -name "*.json" | while read f
+            basename $f .json
+        end
+    end
+    complete -c cda -f -a "(_cda_complete)"
   activate: |
     set -gx AIIDA_PATH {env_file_path}
     eval (env _VERDI_COMPLETE=fish_source verdi)
