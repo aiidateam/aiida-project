@@ -53,9 +53,11 @@ def init(shell: ShellType | None = None) -> None:
     config.set_key("aiida_project_shell", shell_str)
     shellz = load_shell(shell_str)
 
-    shellz.config_file.touch(exist_ok=True)
+    existing_content = (
+        shellz.config_file.read_text() if shellz.config_file.exists() else ""
+    )
 
-    if "Created by `aiida-project init`" in shellz.config_file.read_text():
+    if "Created by `aiida-project init`" in existing_content:
         print(
             "[bold blue]Report:[/] There is already an `aiida-project` initialization comment in "
             f"{shellz.config_file}"
@@ -65,12 +67,20 @@ def init(shell: ShellType | None = None) -> None:
         add_init_lines = True
 
     if add_init_lines:
-        with shellz.config_file.open("a") as handle:
-            handle.write(
-                f"\n# Created by `aiida-project init` on "
-                f"{datetime.now().strftime('%d/%m/%y %H:%M')}\n"
+        init_block = (
+            f"\n# Created by `aiida-project init` on "
+            f"{datetime.now().strftime('%d/%m/%y %H:%M')}\n"
+            + shellz.init_lines.format(env_file_path=config.model_config["env_file"])
+        )
+        try:
+            with shellz.config_file.open("a") as handle:
+                handle.write(init_block)
+        except OSError as exc:
+            print(
+                f"[bold yellow]Warning:[/] could not write to {shellz.config_file} ({exc}).\n"
+                "Add the following lines manually to your shell configuration:"
             )
-            handle.write(shellz.init_lines.format(env_file_path=config.model_config["env_file"]))
+            print(init_block)
 
     config.set_key(
         "aiida_venv_dir",
